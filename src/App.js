@@ -12,12 +12,20 @@ class JoeyChess extends React.Component {
 
 	chessBoard() {
 		let board = [];
-		for (let i = 0; i < BOARD_WIDTH; i++) {
-			board.push(
-				<tr key={i + 1} className="board_square board_square--white"></tr>
-			);
+		let squareCount = 1;
+		for (let j = 0; j < BOARD_HEIGHT; j++) {
+			for (let i = 0; i < BOARD_WIDTH; i++) {
+				if (j % 2 == 0) {
+					//prettier-ignore
+					board.push(<tr id={"Square--"+squareCount} key={i + 1} className={i % 2 == 0 ? "board_square board_square--white" : "board_square board_square--black" }></tr>);
+				} else {
+					//prettier-ignore
+					board.push(<tr id={"Square--"+squareCount} key={i + 1} className={i % 2 == 0 ? "board_square board_square--black" : "board_square board_square--white" }></tr>);
+				}
+
+				squareCount++;
+			}
 		}
-		console.log(board);
 		return board;
 	}
 
