@@ -1,11 +1,18 @@
 $boardSize: 100px;
+$pieceSizeX: 80px;
+$pieceSizeY: 80px;
+$pieceOffset: 84;
+$chessPieces: '../img/800px-Chess_Pieces_Sprite.svg.png';
+$darkGrey1: #333;
 
 * {
 	margin: 0;
 	padding: 0;
+	box-sizing: border-box;
 }
 
 body {
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	background-color: #222;
 }
 
@@ -13,11 +20,27 @@ body {
 	caret-color: transparent; //This hides the typing cursor
 	height: $boardSize;
 	width: $boardSize;
-	&--white {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+
+	&[class*='--white'] {
 		background: #999;
 	}
-	&--black {
+	&[class*='--black'] {
 		background: #444;
+	}
+
+	&.dragOver {
+		border: 3px solid #ccc;
+	}
+
+	& h4 {
+		position: absolute;
+		top: 77px;
+		left: 5px;
+		color: $darkGrey1;
 	}
 }
 
@@ -30,4 +53,77 @@ body {
 	align-items: center;
 	justify-content: center;
 	margin: 50px;
+}
+
+// White pieces
+.piece {
+	width: $pieceSizeX;
+	height: $pieceSizeY;
+
+	&:hover {
+		cursor: pointer;
+	}
+
+	&.wk {
+		background: url($chessPieces) calc(#{$pieceOffset} * 0px)
+			calc(#{$pieceOffset} * 0px);
+		background-size: 500px;
+	}
+	&.wq {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 1px)
+			calc(#{$pieceOffset} * 0px);
+		background-size: 500px;
+	}
+	&.wb {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 2px)
+			calc(#{$pieceOffset} * 0px);
+		background-size: 500px;
+	}
+	&.wn {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 3px)
+			calc(#{$pieceOffset} * 0px);
+		background-size: 500px;
+	}
+	&.wr {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 4px)
+			calc(#{$pieceOffset} * 0px);
+		background-size: 500px;
+	}
+	&.wp {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 5px)
+			calc(#{$pieceOffset} * 0px);
+		background-size: 500px;
+	}
+
+	// Black pieces
+	&.bk {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 0px)
+			calc(#{$pieceOffset} * 1px);
+		background-size: 500px;
+	}
+	&.bq {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 1px)
+			calc(#{$pieceOffset} * 1px);
+		background-size: 500px;
+	}
+	&.bb {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 2px)
+			calc(#{$pieceOffset} * 1px);
+		background-size: 500px;
+	}
+	&.bn {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 3px)
+			calc(#{$pieceOffset} * 1px);
+		background-size: 500px;
+	}
+	&.br {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 4px)
+			calc(#{$pieceOffset} * 1px);
+		background-size: 500px;
+	}
+	&.bp {
+		background: url($chessPieces) calc(-#{$pieceOffset} * 5px)
+			calc(#{$pieceOffset} * 1px);
+		background-size: 500px;
+	}
 }
