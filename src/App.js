@@ -2,14 +2,19 @@ import React from 'react';
 import './scss/index.scss';
 import { BOARD_HEIGHT, BOARD_WIDTH } from './config';
 // eslint-disable-next-line
-import { pawn, bishop, rook, knight, king, queen } from './Pieces';
-import { parseFEN } from './helper';
+import { parseFEN, generateFEN, pieceCheck } from './helper';
 
 class JoeyChess extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			startingPosition: `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`,
+			// boardPositionFEN: `r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 w KQkq - 0 1`,
+			boardPositionFEN: `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`,
+			boardState: null,
+			newSquare: [],
+			curSquare: null,
+			whoseTurn: `w`,
+			turnNum: 1,
 			board: {
 				row1: {
 					sq1: null,
@@ -96,57 +101,93 @@ class JoeyChess extends React.Component {
 	}
 
 	componentDidMount() {
-		// Here we should set the initial board state
-		const startingBoard = { ...this.state.board };
-		let curRow = BOARD_WIDTH;
-		let board = parseFEN([...this.state.startingPosition]).slice(0, 8);
-		console.log(board);
-
-		// for each row
-		for (let i = curRow; i > 0; i--) {
-			let squares = Object.keys(startingBoard[`row${i}`]);
-			let columnCount = 0;
-
-			// for each piece in the row
-			squares.forEach((square) => {
-				startingBoard[`row${i}`][square] = board[8 - i][columnCount];
-				columnCount++;
-			});
-		}
+		// Create the starting position. pass in the current state, and the current starting positon FEN
+		//prettier-ignore
+		let parsedFEN = parseFEN({ ...this.state.board }, [...this.state.boardPositionFEN])
 		this.setState({
-			board: startingBoard,
+			board: parsedFEN[0],
+			boardState: parsedFEN[1],
 		});
-		console.log(startingBoard);
 	}
+
+	componentDidUpdate() {}
 
 	handleDragOver = (e) => {
 		e.preventDefault();
 	};
 
-	handleDrag = (e) => {
-		e.dataTransfer.setData('piece', e.target.className);
-	};
-
 	handleDrop = (e) => {
-		e.preventDefault();
-		e.target.classList.remove(`dragOver`);
-		let droppedPiece = e.dataTransfer.getData('piece');
-		let newBoardState = { ...this.state.board };
-		newBoardState[e.target.dataset.row][e.target.id] = droppedPiece;
+		// TODO: stop turn from changing if piece is dropped on the same square it started
+		// TODO: illegal moves
+		// TODO: Check
+		// TODO: EN-PASSANT
+		// TODO: CASTLE
+		// TODO: PROMOTING
+		// TODO: CHECKMATE
+		// TODO: DO NOTHING IF DROP ON START SQUARE
 
-		this.setState({
-			board: newBoardState,
-		});
+		e.preventDefault();
+		if (!e.dataTransfer.getData('piece')) return;
+		const droppedPiece = e.dataTransfer.getData('piece');
+		const newPiece = pieceCheck(droppedPiece); // returns the new piece, and the previous square it was on
+		const turn = Object.values({ ...this.state.boardState });
+		const whoseTurn = turn[0];
+
+		// Check if its the right players move. If not, do absolutely nothing
+		if (newPiece[0].props.piece[0] === whoseTurn) {
+			let newBoardState = { ...this.state.board };
+			let newFEN, parsedFEN;
+
+			// Remove/add a whole bunch of board highlights ----------------------------------------------------------------------------------------
+			document.querySelectorAll(`.highlight`)?.forEach(el => el.classList.remove(`highlight`)) //prettier-ignore
+			document.querySelectorAll(`.legalMoves`)?.forEach(el => el.classList.remove(`legalMoves`)) //prettier-ignore
+			document.querySelectorAll(`.dragOver`)?.forEach(el => el.classList.remove(`dragOver`)) //prettier-ignore
+			e.target.id ? e.target.classList.add(`highlight`):e.target.parentNode.classList.add(`highlight`); //prettier-ignore
+			document.querySelector('.highlight2')?.classList.remove(`highlight2`);
+			document.getElementById(newPiece[1][1]).classList.add('highlight2');
+			//  --------------------------------------------------------------------------------------------------------------------------------------
+
+			// Remove the piece from the old square, move it to the new square, and generate a new FEN + parse it and save it to the state -------------
+			newBoardState[newPiece[1][0]][newPiece[1][1]] = ''; // set the square that the piece came from to blank
+			newBoardState[this.state.newSquare[0]][this.state.newSquare[1]] = newPiece[0]; //prettier-ignore
+			newFEN = generateFEN(newBoardState, this.state.boardState); // generate a new FEN based on the board
+			parsedFEN = parseFEN({ ...this.state.board }, [...newFEN]); // parse the new FEN into the new position
+			//  --------------------------------------------------------------------------------------------------------------------------------------
+
+			this.setState({
+				boardPositionFEN: newFEN,
+				board: parsedFEN[0],
+				boardState: parsedFEN[1],
+			});
+		} else {
+			document.querySelectorAll(`.dragOver`)?.forEach(el => el.classList.remove(`dragOver`)); //prettier-ignore
+			document.querySelectorAll(`.legalMoves`)?.forEach(el => el.classList.remove(`legalMoves`)) //prettier-ignore
+			document.querySelectorAll(`.highlight`)?.forEach(el => el.classList.remove(`highlight`)) //prettier-ignore
+		}
 	};
 
 	handleDragLeave = (e) => {
 		e.preventDefault();
-		e.target.classList.remove(`dragOver`);
+		if (this.state.curSquare.id) {
+			e.target.classList.remove(`dragOver`);
+		}
 	};
 
 	handleDragEnter = (e) => {
 		e.preventDefault();
-		e.target.classList.add(`dragOver`);
+		if (e.target.id) {
+			e.target.classList.add(`dragOver`);
+			this.setState({
+				newSquare: [e.target.dataset.row, e.target.id],
+				curSquare: e.target,
+			});
+		} else {
+			e.target.parentNode.classList.add(`dragOver`);
+			this.setState({
+				newSquare: [e.target.parentNode.dataset.row, e.target.parentNode.id],
+				curSquare: e.target,
+			});
+		}
 	};
 
 	chessBoard = (e) => {
@@ -159,8 +200,9 @@ class JoeyChess extends React.Component {
 				let curBoardRow = this.state.board['row' + rowCount];
 				let squareCount = 64 - j * 8 - i + 1; // This is so 1 is the bottom left (if youre white. super annoying because var - var in for loop breaks apparently)
 				let squareId = `sq${squareCount}`; // Get the current square ID
-				let curSquare = curBoardRow[squareId]; // pass the current square id in so we get its value and find out if it has a piece
+				let curPiece = curBoardRow[squareId]; // pass the current square id in so we get its value and find out if it has a piece
 				let squareClass;
+
 				if (j % 2 === 0) {
 					squareClass =
 						i % 2 === 0 ? 'board_square --white' : 'board_square --black';
@@ -181,7 +223,7 @@ class JoeyChess extends React.Component {
 						onDragLeave={(e) => this.handleDragLeave(e)}
 					>
 						{/* Inside the square, we add a piece if one exists */}
-						{curSquare}
+						{curPiece}
 						<h4>{squareCount}</h4>
 					</div>
 				);
@@ -193,9 +235,13 @@ class JoeyChess extends React.Component {
 	};
 
 	render() {
+		const turn = Object.values({ ...this.state.boardState });
+		const whoseTurn = turn[0];
+		const turnNum = turn[turn.length - 1];
 		return (
 			<div className="board_container">
 				<this.chessBoard />
+				<h1>{whoseTurn + ` ` + turnNum}</h1>
 			</div>
 		);
 	}
