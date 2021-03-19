@@ -1,6 +1,6 @@
 import { checkForEnemy } from './helper';
 
-export const findMoves = (row, sq, col, pc, moves, movesBlack) => {
+export const findMoves = (row, sq, col, pc) => {
 	// Piece move direction list:
 	// [N, NW, NE, E, W, SW, SE, S]
 	let color = col;
@@ -10,9 +10,32 @@ export const findMoves = (row, sq, col, pc, moves, movesBlack) => {
 	let curSquare = Number(sq.slice(2));
 	let leftEdge = [1, 9, 17, 25, 33, 41, 49, 57];
 	let rightEdge = [8, 16, 24, 32, 40, 48, 56, 64];
-	let startingLegalMoves = moves; //prettier-ignore
+	let startingLegalMoves;
+	let knightMoves = [15, 6, 17, 10, -10, -17, -6, -15];
+	let bishopMoves = [0, 9, 7, 0, 0, -9, -7, 0];
+	let rookMoves = [8, 0, 0, 1, -1, 0, 0, -8];
+	let queenMoves = [8, 7, 9, 1, -1, -9, -7, -8];
+	let kingMoves = [8, 7, 9, 1, -1, -9, -7, -8];
+	let pawnMovesWhite = [8, 7, 9, 0, 0, 0, 0, 0];
+	let pawnMovesBlack = [0, 0, 0, 0, 0, -7, -9, -8];
+
 	if (piece === `p`) {
-		startingLegalMoves = color === `b` ? moves : movesBlack;
+		startingLegalMoves = color === `b` ? pawnMovesBlack : pawnMovesWhite;
+	}
+	if (piece === `n`) {
+		startingLegalMoves = knightMoves;
+	}
+	if (piece === `b`) {
+		startingLegalMoves = bishopMoves;
+	}
+	if (piece === `r`) {
+		startingLegalMoves = rookMoves;
+	}
+	if (piece === `q`) {
+		startingLegalMoves = queenMoves;
+	}
+	if (piece === `k`) {
+		startingLegalMoves = kingMoves;
 	}
 
 	// Generate an array of legal squares we can go to
@@ -313,7 +336,6 @@ export const findMoves = (row, sq, col, pc, moves, movesBlack) => {
 
 			// Rook ----------------------------------------------------------------------------
 			if (piece === `r`) {
-				console.log(`rook`);
 				// North Move ------------------------------------------------------------------------------------
 				if (dirIndex === 0) {
 					//prettier-ignore

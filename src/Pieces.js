@@ -17,38 +17,36 @@ class Piece extends React.Component {
 		e.dataTransfer.setData('piece', e.target.className);
 	};
 
-	// checkForCheck = (e) => {
-	// 	let pieces = [`wp`, `wr`, `wn`, `wb`, `wq`, `wk`, `bb`, `br`, `bn`, `bk`, `bq`, `bp`]; //prettier-ignore
+	checkForCheck = (e) => {
+		let pieces = [`wp`, `wr`, `wn`, `wb`, `wq`, `wk`, `bb`, `br`, `bn`, `bk`, `bq`, `bp`]; //prettier-ignore
 
-	// 	for (let square = 1; square <= 64; square++) {
-	// 		let squareId = `sq` + square;
-	// 		let squareEl = document.getElementById(squareId);
+		for (let square = 1; square <= 64; square++) {
+			let squareId = `sq` + square;
+			let squareEl = document.getElementById(squareId);
 
-	// 		pieces.some((piece) => {
-	// 			if (squareEl.innerHTML.includes(piece)) {
-	// 				let color = piece.slice(0, 1);
-	// 				let sq = squareId;
-	// 				let row = squareEl.dataset.row;
+			pieces.some((piece) => {
+				if (squareEl.innerHTML.includes(piece)) {
+					let color = piece.slice(0, 1);
+					let pc = piece.slice(1, 2);
+					let sq = squareId;
+					let row = squareEl.dataset.row;
 
-	// 				// ITS ONLY DOING FIND MOVES ON THE PICE I CLICK, THINKING EVERY PIECE IS THAT PIECE.
-	// 				// I NEED TO PASS IN WHAT PIECE TYPE EACH ONE IS, AND UPDATE MY FINDMOVES FUNC TO TAKE THAT INTO ACCOUNT
-	// 				let legalMoves = this.findMoves(row, sq, color); //prettier-ignore
+					let legalMoves = findMoves(row, sq, color, pc);
 
-	// 				if (legalMoves.length === 0) return `Done`;
-	// 				// console.log(sq, row, legalMoves, piece);
+					if (legalMoves.length === 0) return `Done`;
 
-	// 				legalMoves.forEach((move) => {
-	// 					let squareEl2 = document.getElementById(move).innerHTML;
-	// 					if (squareEl2.includes(color === `w` ? `bk` : `wk`)) {
-	// 						// console.log(`CHECK`, piece, move);
-	// 					}
-	// 				});
-	// 				return `Done`;
-	// 			}
-	// 			return null;
-	// 		});
-	// 	}
-	// };
+					legalMoves.forEach((move) => {
+						let squareEl2 = document.getElementById(move).innerHTML;
+						if (squareEl2.includes(color === `w` ? `bk` : `wk`)) {
+							console.log(`CHECK`, piece, move);
+						}
+					});
+					return `Done`;
+				}
+				return null;
+			});
+		}
+	};
 
 	pieceHtml = (
 		<div
@@ -61,7 +59,7 @@ class Piece extends React.Component {
 				let color = e.target.className.slice(0, 1);
 				this.props.legalMoves(this.findMoves(row, sq, color));
 				e.target.parentNode.classList.add(`highlight`);
-				// this.checkForCheck();
+				this.checkForCheck();
 			}}
 			onDragStart={(e) => {
 				removeSquareColors();
@@ -92,8 +90,6 @@ export class Knight extends Piece {
 		super(props);
 		this.state = {
 			piece: `n`,
-			// [N, NW, NE, E, W, SW, SE, S]
-			moves: [15, 6, 17, 10, -10, -17, -6, -15],
 		};
 	}
 
@@ -105,7 +101,7 @@ export class Knight extends Piece {
 	 * @returns
 	 */
 	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece, this.state.moves); //prettier-ignore
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -120,7 +116,6 @@ export class Rook extends Piece {
 		super(props);
 		this.state = {
 			piece: `r`,
-			moves: [8, 0, 0, 1, -1, 0, 0, -8],
 		};
 	}
 
@@ -132,7 +127,7 @@ export class Rook extends Piece {
 	 * @returns
 	 */
 	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece, this.state.moves); //prettier-ignore
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -147,7 +142,6 @@ export class Queen extends Piece {
 		super(props);
 		this.state = {
 			piece: `q`,
-			moves: [8, 7, 9, 1, -1, -9, -7, -8],
 		};
 	}
 
@@ -159,7 +153,7 @@ export class Queen extends Piece {
 	 * @returns
 	 */
 	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece, this.state.moves); //prettier-ignore
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -174,12 +168,11 @@ export class King extends Piece {
 		super(props);
 		this.state = {
 			piece: `k`,
-			moves: [8, 7, 9, 1, -1, -9, -7, -8],
 		};
 	}
 
 	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece, this.state.moves); //prettier-ignore
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -194,10 +187,7 @@ export class Pawn extends Piece {
 		super(props);
 		this.state = {
 			piece: `p`,
-			pawnHasMoved: false,
 			attacking: false,
-			movesWhite: [8, 7, 9, 0, 0, 0, 0, 0],
-			movesBlack: [0, 0, 0, 0, 0, -7, -9, -8],
 		};
 	}
 
@@ -209,7 +199,7 @@ export class Pawn extends Piece {
 	 * @returns
 	 */
 	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece, this.state.movesWhite, this.state.movesBlack); //prettier-ignore
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -224,7 +214,6 @@ export class Bishop extends Piece {
 		super(props);
 		this.state = {
 			piece: `b`,
-			moves: [0, 9, 7, 0, 0, -9, -7, 0],
 		};
 	}
 
@@ -236,7 +225,7 @@ export class Bishop extends Piece {
 	 * @returns
 	 */
 	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece, this.state.moves); //prettier-ignore
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
 		return newLegalMoves;
 	};
 
