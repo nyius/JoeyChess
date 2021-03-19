@@ -140,6 +140,7 @@ class JoeyChess extends React.Component {
 			let newBoardState = { ...this.state.board };
 			let newFEN, parsedFEN;
 
+			if (legalMoves.includes(`check`)) console.log(`yep`);
 			// Remove/add a whole bunch of board highlights ----------------------------------------------------------------------------------------
 			removeSquareColors();
 			// if where we dropped it isn't a legal move, do nothing

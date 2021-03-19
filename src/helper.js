@@ -10,14 +10,11 @@ const prevPosition = (e) => {
 };
 
 const legalMoves = (newLegalMoves) => {
-	pieceMoves = newLegalMoves;
 	// Loop over our legal squares and set their color on the board
 	newLegalMoves.forEach((square) => {
-		if (square) {
-			let squareEl = document.getElementById(square);
-			squareEl.classList.add(`legalMoves`);
-		}
+		document.getElementById(square).classList.add(`legalMoves`);
 	});
+	pieceMoves = newLegalMoves;
 };
 
 const wp = <Pawn piece="white piece wp" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
@@ -331,7 +328,7 @@ export const checkForEnemy = (curSquare, curRow, pieceMoveToSquare, pieceColor, 
 	let squareHasEnemy = squareHasPiece(pieceMoveToSquare, pieceColor);
 
     if(squareHasEnemy === `Friendly`) return `Friendly`;
-    
+
 	if (directionalIndex === 2 || directionalIndex === 3 || directionalIndex === 5) {
 		// If our current piece is on the right edge, we can't go right
 		if (curSquare === rightEdge[curRow - 1]) {
