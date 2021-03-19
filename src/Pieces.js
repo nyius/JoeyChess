@@ -246,28 +246,22 @@ class Piece extends React.Component {
 							let moveNum = color === `w` ? move : -move;
 							let pieceInFront = document.getElementById(`sq` + pieceMoveToSquare); //prettier-ignore
 							let piece2InFront = document.getElementById(`sq` + Number(pieceMoveToSquare + moveNum)) //prettier-ignore
-
 							// 1. Check if theres a piece infront of the pawn
 							//prettier-ignore
-							if (pieceInFront.innerHTML.includes(color===`w` ? `black` : `white`)) {
-                                
+							if (pieceInFront.innerHTML.includes(`piece`)) {
                                 return;
                             } 
                             // 2. Check if its the first move or not (if it is, it allows us to move 2 squares)
                             else if (color === `w` && curRow === 2) {
 								newLegalMoves.push(`sq` + pieceMoveToSquare);
-
-                                if(piece2InFront.innerHTML.includes(color===`w` ? `black` : `white`)){
-                                    
+                                if(piece2InFront.innerHTML.includes(`piece`)){
                                     return;
                                 }
 								newLegalMoves.push(`sq` + Number(pieceMoveToSquare + moveNum));
 							} 
                             else if (color === `b` && curRow === 7) {
 								newLegalMoves.push(`sq` + pieceMoveToSquare);
-
-                                if(piece2InFront.innerHTML.includes(color===`w` ? `black` : `white`)){
-                                    
+                                if(piece2InFront.innerHTML.includes(`piece`)){
                                     return;
                                 }
 								newLegalMoves.push(`sq` + Number(pieceMoveToSquare + moveNum));
@@ -486,9 +480,7 @@ class Piece extends React.Component {
 							return;
 						}
 					}
-				} else {
 				}
-			} else {
 			}
 		});
 		return newLegalMoves;
