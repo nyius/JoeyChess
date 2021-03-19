@@ -1,5 +1,5 @@
 import React from 'react';
-import { checkForEnemy, removeSquareColors } from './helper';
+import { removeSquareColors } from './helper';
 import { findMoves } from './findLegalMoves';
 
 // Piece move direction list:
