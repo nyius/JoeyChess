@@ -3,12 +3,14 @@ import { Rook, Knight, King, Queen, Pawn, Bishop } from './Pieces';
 import { BOARD_HEIGHT, BOARD_WIDTH } from './config';
 
 let previousPosition;
+let pieceMoves;
 
 const prevPosition = (e) => {
 	previousPosition = e;
 };
 
 const legalMoves = (newLegalMoves) => {
+	pieceMoves = newLegalMoves;
 	// Loop over our legal squares and set their color on the board
 	newLegalMoves.forEach((square) => {
 		if (square) {
@@ -270,29 +272,29 @@ export const generateFEN = (newBoardPosition, currentState) => {
  */
 export const pieceCheck = (piece) => {
 	if (piece.includes(`bb`)) {
-		return [bb, previousPosition];
+		return [bb, previousPosition, pieceMoves];
 	} else if (piece.includes(`bn`)) {
-		return [bn, previousPosition];
+		return [bn, previousPosition, pieceMoves];
 	} else if (piece.includes(`br`)) {
-		return [br, previousPosition];
+		return [br, previousPosition, pieceMoves];
 	} else if (piece.includes(`bp`)) {
-		return [bp, previousPosition];
+		return [bp, previousPosition, pieceMoves];
 	} else if (piece.includes(`bq`)) {
-		return [bq, previousPosition];
+		return [bq, previousPosition, pieceMoves];
 	} else if (piece.includes(`bk`)) {
-		return [bk, previousPosition];
+		return [bk, previousPosition, pieceMoves];
 	} else if (piece.includes(`wn`)) {
-		return [wn, previousPosition];
+		return [wn, previousPosition, pieceMoves];
 	} else if (piece.includes(`wb`)) {
-		return [wb, previousPosition];
+		return [wb, previousPosition, pieceMoves];
 	} else if (piece.includes(`wr`)) {
-		return [wr, previousPosition];
+		return [wr, previousPosition, pieceMoves];
 	} else if (piece.includes(`wp`)) {
-		return [wp, previousPosition];
+		return [wp, previousPosition, pieceMoves];
 	} else if (piece.includes(`wq`)) {
-		return [wq, previousPosition];
+		return [wq, previousPosition, pieceMoves];
 	} else if (piece.includes(`wk`)) {
-		return [wk, previousPosition];
+		return [wk, previousPosition, pieceMoves];
 	}
 };
 
@@ -328,6 +330,8 @@ export const checkForEnemy = (curSquare, curRow, pieceMoveToSquare, pieceColor, 
 	let rightEdge = [8, 16, 24, 32, 40, 48, 56, 64];
 	let squareHasEnemy = squareHasPiece(pieceMoveToSquare, pieceColor);
 
+    if(squareHasEnemy === `Friendly`) return `Friendly`;
+    
 	if (directionalIndex === 2 || directionalIndex === 3 || directionalIndex === 5) {
 		// If our current piece is on the right edge, we can't go right
 		if (curSquare === rightEdge[curRow - 1]) {

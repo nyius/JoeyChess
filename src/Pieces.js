@@ -26,18 +26,15 @@ class Piece extends React.Component {
 	findMoves = (row, sq, col) => {
 		// Piece move direction list:
 		// [N, NW, NE, E, W, SW, SE, S]
-		let newLegalMoves = [];
-		let startingLegalMoves = this.state.movesWhite;
-		let piece = this.state.piece;
 		let color = col;
+		let newLegalMoves = [];
+		let piece = this.state.piece;
 		let curRow = Number(row.slice(3));
 		let curSquare = Number(sq.slice(2));
 		let leftEdge = [1, 9, 17, 25, 33, 41, 49, 57];
 		let rightEdge = [8, 16, 24, 32, 40, 48, 56, 64];
-		// Set the startingLegalMoves if its black
-		if (color === `b`) {
-			startingLegalMoves = this.state.movesBlack;
-		}
+		let startingLegalMoves = color === `b` ? this.state.movesBlack : this.state.movesWhite; //prettier-ignore
+
 		// Generate an array of legal squares we can go to
 		startingLegalMoves.forEach((move, dirIndex) => {
 			if (move) {
@@ -51,14 +48,14 @@ class Piece extends React.Component {
 					pieceMoveToSquare = -move + curSquare;
 				}
 
-				// Check if our move puts us above or below the board
-				if (pieceMoveToSquare > 0 && pieceMoveToSquare < 65) {
-					// Handle Bishop, Queen, and Rook Moves ------------------------------------------------------------------------------------
-					if (piece === `b` || piece === `q` || piece === `r`) {
-						// North Move ------------------------------------------------------------------------------------
-						if (dirIndex === 0) {
-							//prettier-ignore
-							for (let newSquare = curSquare + 8; newSquare <= 64; newSquare += 8) {
+				if (pieceMoveToSquare < 0 || pieceMoveToSquare > 65) return; // if piece is above or below board, get rid of move
+
+				// Handle Bishop, Queen, and Rook Moves ------------------------------------------------------------------------------------
+				if (piece === `b` || piece === `q` || piece === `r`) {
+					// North Move ------------------------------------------------------------------------------------
+					if (dirIndex === 0) {
+						//prettier-ignore
+						for (let newSquare = curSquare + 8; newSquare <= 64; newSquare += 8) {
                                 let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
 
                                 if(squareHasEnemy === `Friendly`){
@@ -72,11 +69,11 @@ class Piece extends React.Component {
                                     newLegalMoves.push(`sq` + newSquare);
                                 }
                             }
-						}
-						// South Move ----------------------------------------------------------------------------
-						else if (dirIndex === 7) {
-							//prettier-ignore
-							for (let newSquare = curSquare - 8; newSquare > 0; newSquare -= 8) {
+					}
+					// South Move ----------------------------------------------------------------------------
+					else if (dirIndex === 7) {
+						//prettier-ignore
+						for (let newSquare = curSquare - 8; newSquare > 0; newSquare -= 8) {
                                 let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
 
                                 if(squareHasEnemy === `Friendly`){
@@ -90,11 +87,11 @@ class Piece extends React.Component {
                                     newLegalMoves.push(`sq` + newSquare);
                                 }
                             }
-						}
-						// East Move ----------------------------------------------------------------------------
-						else if (dirIndex === 3) {
-							//prettier-ignore
-							for (let newSquare = curSquare + 1;	newSquare <= rightEdge[curRow - 1];	newSquare++) {
+					}
+					// East Move ----------------------------------------------------------------------------
+					else if (dirIndex === 3) {
+						//prettier-ignore
+						for (let newSquare = curSquare + 1;	newSquare <= rightEdge[curRow - 1];	newSquare++) {
 
                                 let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
 
@@ -112,11 +109,11 @@ class Piece extends React.Component {
                                     newLegalMoves.push(`sq` + newSquare);
                                 }
 						    }
-						}
-						// West Move ----------------------------------------------------------------------------
-						else if (dirIndex === 4) {
-							//prettier-ignore
-							for (let newSquare = curSquare - 1; newSquare >= leftEdge[curRow - 1]; newSquare--) {
+					}
+					// West Move ----------------------------------------------------------------------------
+					else if (dirIndex === 4) {
+						//prettier-ignore
+						for (let newSquare = curSquare - 1; newSquare >= leftEdge[curRow - 1]; newSquare--) {
                                 let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
                                 
                                 if (leftEdge.includes(curSquare)) {
@@ -133,122 +130,122 @@ class Piece extends React.Component {
                                     newLegalMoves.push(`sq` + newSquare);
                                 }
                             }
-						}
-						// North West Move ----------------------------------------------------------------------------
-						else if (dirIndex === 1) {
-							//prettier-ignore
-							for (let newSquare = curSquare + 7; newSquare <= 63; newSquare += 7) {
-                                let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
-
-                                if (leftEdge.includes(curSquare)) {
-                                    return;
-                                } 
-                                else if(squareHasEnemy === `Friendly`){
-                                    return;
-                                } 
-                                else if (leftEdge.includes(newSquare)){
-                                    newLegalMoves.push(`sq` + newSquare);
-                                    return;
-                                }
-                                else if(squareHasEnemy) {
-                                    newLegalMoves.push(`sq` + newSquare);
-                                    return;
-                                } 
-                                else {
-                                    newLegalMoves.push(`sq` + newSquare);
-                                }
-                            }
-						}
-						// North East Move ----------------------------------------------------------------------------
-						else if (dirIndex === 2) {
-							//prettier-ignore
-							for (let newSquare = curSquare + 9; newSquare <= 64; newSquare += 9) {
-                                let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
-
-                                if (rightEdge.includes(curSquare)) {
-                                    return;
-                                } 
-                                else if(squareHasEnemy === `Friendly`){
-                                    return;
-                                } 
-                                else if (rightEdge.includes(newSquare)){
-                                    newLegalMoves.push(`sq` + newSquare);
-                                    return;
-                                }
-                                else if(squareHasEnemy) {
-                                    newLegalMoves.push(`sq` + newSquare);
-                                    return;
-                                } 
-                                else {
-                                    newLegalMoves.push(`sq` + newSquare);
-                                }
-                            }
-						}
-						// South West Move ----------------------------------------------------------------------------
-						else if (dirIndex === 5) {
-							//prettier-ignore
-							for (let newSquare = curSquare - 9; newSquare >= 1; newSquare -= 9) {
-                                let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
-
-                                if (leftEdge.includes(curSquare)) {
-                                    return;
-                                } 
-                                else if(squareHasEnemy === `Friendly`){
-                                    return;
-                                } 
-                                else if (leftEdge.includes(newSquare)){
-                                    newLegalMoves.push(`sq` + newSquare);
-                                    return;
-                                }
-                                else if(squareHasEnemy) {
-                                    newLegalMoves.push(`sq` + newSquare);
-                                    return;
-                                } 
-                                else {
-                                    newLegalMoves.push(`sq` + newSquare);
-                                }
-                            }
-						}
-						// South East Move ----------------------------------------------------------------------------
-						else if (dirIndex === 6) {
-							//prettier-ignore
-							for (let newSquare = curSquare - 7; newSquare >= 8; newSquare -= 7) {
-                                let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
-
-                                if (rightEdge.includes(curSquare)) {
-                                    return;
-                                } 
-                                else if(squareHasEnemy === `Friendly`){
-                                    return;
-                                } 
-                                else if (rightEdge.includes(newSquare)){
-                                    newLegalMoves.push(`sq` + newSquare);
-                                    return;
-                                }
-                                else if(squareHasEnemy) {
-                                    newLegalMoves.push(`sq` + newSquare);
-                                    return;
-                                } 
-                                else {
-                                    newLegalMoves.push(`sq` + newSquare);
-                                }
-                            }
-						}
 					}
-
-					// Handle Pawn Move ------------------------------------------------------------------------------------
-					if (piece === `p`) {
+					// North West Move ----------------------------------------------------------------------------
+					else if (dirIndex === 1) {
 						//prettier-ignore
-						let squareHasEnemy = checkForEnemy(curSquare,curRow,pieceMoveToSquare,color,dirIndex)
+						for (let newSquare = curSquare + 7; newSquare <= 63; newSquare += 7) {
+                                let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
 
-						// Check for forward moves
-						if (dirIndex === 0 || dirIndex === 7) {
-							let moveNum = color === `w` ? move : -move;
-							let pieceInFront = document.getElementById(`sq` + pieceMoveToSquare); //prettier-ignore
-							let piece2InFront = document.getElementById(`sq` + Number(pieceMoveToSquare + moveNum)) //prettier-ignore
-							// 1. Check if theres a piece infront of the pawn
-							//prettier-ignore
-							if (pieceInFront.innerHTML.includes(`piece`)) {
+                                if (leftEdge.includes(curSquare)) {
+                                    return;
+                                } 
+                                else if(squareHasEnemy === `Friendly`){
+                                    return;
+                                } 
+                                else if (leftEdge.includes(newSquare)){
+                                    newLegalMoves.push(`sq` + newSquare);
+                                    return;
+                                }
+                                else if(squareHasEnemy) {
+                                    newLegalMoves.push(`sq` + newSquare);
+                                    return;
+                                } 
+                                else {
+                                    newLegalMoves.push(`sq` + newSquare);
+                                }
+                            }
+					}
+					// North East Move ----------------------------------------------------------------------------
+					else if (dirIndex === 2) {
+						//prettier-ignore
+						for (let newSquare = curSquare + 9; newSquare <= 64; newSquare += 9) {
+                                let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                                if (rightEdge.includes(curSquare)) {
+                                    return;
+                                } 
+                                else if(squareHasEnemy === `Friendly`){
+                                    return;
+                                } 
+                                else if (rightEdge.includes(newSquare)){
+                                    newLegalMoves.push(`sq` + newSquare);
+                                    return;
+                                }
+                                else if(squareHasEnemy) {
+                                    newLegalMoves.push(`sq` + newSquare);
+                                    return;
+                                } 
+                                else {
+                                    newLegalMoves.push(`sq` + newSquare);
+                                }
+                            }
+					}
+					// South West Move ----------------------------------------------------------------------------
+					else if (dirIndex === 5) {
+						//prettier-ignore
+						for (let newSquare = curSquare - 9; newSquare >= 1; newSquare -= 9) {
+                                let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                                if (leftEdge.includes(curSquare)) {
+                                    return;
+                                } 
+                                else if(squareHasEnemy === `Friendly`){
+                                    return;
+                                } 
+                                else if (leftEdge.includes(newSquare)){
+                                    newLegalMoves.push(`sq` + newSquare);
+                                    return;
+                                }
+                                else if(squareHasEnemy) {
+                                    newLegalMoves.push(`sq` + newSquare);
+                                    return;
+                                } 
+                                else {
+                                    newLegalMoves.push(`sq` + newSquare);
+                                }
+                            }
+					}
+					// South East Move ----------------------------------------------------------------------------
+					else if (dirIndex === 6) {
+						//prettier-ignore
+						for (let newSquare = curSquare - 7; newSquare >= 8; newSquare -= 7) {
+                                let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                                if (rightEdge.includes(curSquare)) {
+                                    return;
+                                } 
+                                else if(squareHasEnemy === `Friendly`){
+                                    return;
+                                } 
+                                else if (rightEdge.includes(newSquare)){
+                                    newLegalMoves.push(`sq` + newSquare);
+                                    return;
+                                }
+                                else if(squareHasEnemy) {
+                                    newLegalMoves.push(`sq` + newSquare);
+                                    return;
+                                } 
+                                else {
+                                    newLegalMoves.push(`sq` + newSquare);
+                                }
+                            }
+					}
+				}
+
+				// Handle Pawn Move ------------------------------------------------------------------------------------
+				if (piece === `p`) {
+					//prettier-ignore
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,pieceMoveToSquare,color,dirIndex)
+
+					// Check for forward moves
+					if (dirIndex === 0 || dirIndex === 7) {
+						let moveNum = color === `w` ? move : -move;
+						let pieceInFront = document.getElementById(`sq` + pieceMoveToSquare); //prettier-ignore
+						let piece2InFront = document.getElementById(`sq` + Number(pieceMoveToSquare + moveNum)) //prettier-ignore
+						// 1. Check if theres a piece infront of the pawn
+						//prettier-ignore
+						if (pieceInFront.innerHTML.includes(`piece`)) {
                                 return;
                             } 
                             // 2. Check if its the first move or not (if it is, it allows us to move 2 squares)
@@ -270,215 +267,28 @@ class Piece extends React.Component {
                             else {
 								newLegalMoves.push(`sq` + pieceMoveToSquare);
 							}
-						}
-						// If the square has an enemy, highlight that square
-						if (squareHasEnemy === `Friendly`) {
-							return;
-						} else if (squareHasEnemy) {
-							newLegalMoves.push(`sq` + pieceMoveToSquare);
-							return;
-						}
+					}
+					// If the square has an enemy, highlight that square
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
 						return;
 					}
+					return;
+				}
 
-					// Handle Knight Move ------------------------------------------------------------------------------------
-					if (piece === `n`) {
-						let edge = color === 'b' ? leftEdge : rightEdge;
-						// North Move ----------------------------------------------------------------------------
-						if (dirIndex === 0) {
-							let newSquare = curSquare + startingLegalMoves[dirIndex];
-							if (leftEdge.includes(curSquare)) {
-								return;
-							}
-							if (newSquare > 64 || newSquare < 1) {
-								return;
-							}
-							let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-							if (squareHasEnemy === `Friendly`) {
-								return;
-							} else if (squareHasEnemy) {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							} else {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							}
-						}
-						// South Move ----------------------------------------------------------------------------
-						else if (dirIndex === 7) {
-							let newSquare = curSquare + startingLegalMoves[dirIndex];
-							if (rightEdge.includes(curSquare)) {
-								return;
-							}
-							if (newSquare > 64 || newSquare < 1) {
-								return;
-							}
-							let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-
-							if (squareHasEnemy === `Friendly`) {
-								return;
-							} else if (squareHasEnemy) {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							} else {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							}
-						}
-						// East Move ----------------------------------------------------------------------------
-						else if (dirIndex === 3) {
-							let newSquare = curSquare + startingLegalMoves[dirIndex];
-
-							//prettier-ignore
-							if (color === 'w' ? edge.includes(curSquare + 1) : edge.includes(curSquare - 1)) {
-								return;
-							}
-							if (edge.includes(curSquare)) {
-								return;
-							}
-							if (newSquare > 64 || newSquare < 1) {
-								return;
-							}
-							let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-
-							if (squareHasEnemy === `Friendly`) {
-								return;
-							} else if (squareHasEnemy) {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							} else {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							}
-						}
-						// West Move ----------------------------------------------------------------------------
-						else if (dirIndex === 4) {
-							let newSquare = curSquare + startingLegalMoves[dirIndex];
-							//prettier-ignore
-							if (color === 'w' ? edge.includes(curSquare - 1) : edge.includes(curSquare + 1)) {
-								return;
-							}
-							if (leftEdge.includes(curSquare)) {
-								return;
-							}
-							if (newSquare > 64 || newSquare < 1) {
-								return;
-							}
-							let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-							if (squareHasEnemy === `Friendly`) {
-								return;
-							} else if (squareHasEnemy) {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							} else {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							}
-						}
-						// North West Move ----------------------------------------------------------------------------
-						else if (dirIndex === 1) {
-							let newSquare = curSquare + startingLegalMoves[dirIndex];
-							//prettier-ignore
-							if (color === 'w' ? edge.includes(curSquare - 1) : edge.includes(curSquare + 1)) {
-								return;
-							}
-							if (leftEdge.includes(curSquare)) {
-								return;
-							}
-							if (newSquare > 64 || newSquare < 1) {
-								return;
-							}
-							let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-							if (squareHasEnemy === `Friendly`) {
-								return;
-							} else if (squareHasEnemy) {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							} else {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							}
-						}
-						// North East Move ----------------------------------------------------------------------------
-						else if (dirIndex === 2) {
-							let newSquare = curSquare + startingLegalMoves[dirIndex];
-							if (rightEdge.includes(curSquare)) {
-								return;
-							}
-							if (newSquare > 64 || newSquare < 1) {
-								return;
-							}
-							let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-
-							if (squareHasEnemy === `Friendly`) {
-								return;
-							} else if (squareHasEnemy) {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							} else {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							}
-						}
-						// South West Move ----------------------------------------------------------------------------
-						else if (dirIndex === 5) {
-							let newSquare = curSquare + startingLegalMoves[dirIndex];
-							if (leftEdge.includes(curSquare)) {
-								return;
-							}
-							if (newSquare > 64 || newSquare < 1) {
-								return;
-							}
-							let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-
-							if (squareHasEnemy === `Friendly`) {
-								return;
-							} else if (squareHasEnemy) {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							} else {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							}
-						}
-						// South East Move ----------------------------------------------------------------------------
-						else if (dirIndex === 6) {
-							let newSquare = curSquare + startingLegalMoves[dirIndex];
-							//prettier-ignore
-							if (color === 'w' ? edge.includes(curSquare + 1) : edge.includes(curSquare - 1)) {
-								return;
-							}
-							if (rightEdge.includes(curSquare)) {
-								return;
-							}
-							if (newSquare > 64 || newSquare < 1) {
-								return;
-							}
-							let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-							if (squareHasEnemy === `Friendly`) {
-								return;
-							} else if (squareHasEnemy) {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							} else {
-								newLegalMoves.push(`sq` + pieceMoveToSquare);
-								return;
-							}
-						}
-					}
-
-					// Handle King Move ------------------------------------------------------------------------------------
-					if (piece === 'k') {
-						//prettier-ignore
-						let squareHasEnemy = checkForEnemy(curSquare,curRow,pieceMoveToSquare,color,dirIndex)
-						if (squareHasEnemy === `Friendly`) {
-							return;
-						} else if (squareHasEnemy) {
-							newLegalMoves.push(`sq` + pieceMoveToSquare);
-						} else {
-							newLegalMoves.push(`sq` + pieceMoveToSquare);
-							return;
-						}
+				// Handle King Move ------------------------------------------------------------------------------------
+				if (piece === 'k') {
+					//prettier-ignore
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,pieceMoveToSquare,color,dirIndex)
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
 					}
 				}
 			}
@@ -525,25 +335,330 @@ export class Knight extends Piece {
 		this.state = {
 			piece: `n`,
 			// [N, NW, NE, E, W, SW, SE, S]
-			movesWhite: [15, 6, 17, 10, -10, -17, -6, -15],
-			movesBlack: [-15, -6, -17, -10, 10, 6, 17, 15],
+			moves: [15, 6, 17, 10, -10, -17, -6, -15],
 		};
 	}
+
+	findMoves = (row, sq, col) => {
+		// Piece move direction list:
+		// [N, NW, NE, E, W, SW, SE, S]
+		let color = col;
+		let newLegalMoves = [];
+		let curRow = Number(row.slice(3));
+		let curSquare = Number(sq.slice(2));
+		let leftEdge = [1, 9, 17, 25, 33, 41, 49, 57];
+		let rightEdge = [8, 16, 24, 32, 40, 48, 56, 64];
+		let startingLegalMoves = this.state.moves; //prettier-ignore
+
+		// Generate an array of legal squares we can go to
+		startingLegalMoves.forEach((move, dirIndex) => {
+			if (move) {
+				let pieceMoveToSquare = move + curSquare;
+
+				if (pieceMoveToSquare < 0 || pieceMoveToSquare > 65) return; // if piece is above or below board, get rid of move
+
+				// North Move ----------------------------------------------------------------------------
+				if (dirIndex === 0) {
+					let newSquare = curSquare + startingLegalMoves[dirIndex];
+					if (leftEdge.includes(curSquare)) {
+						return;
+					}
+					if (newSquare > 64 || newSquare < 1) {
+						return;
+					}
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					}
+				}
+				// South Move ----------------------------------------------------------------------------
+				else if (dirIndex === 7) {
+					let newSquare = curSquare + startingLegalMoves[dirIndex];
+					if (rightEdge.includes(curSquare)) {
+						return;
+					}
+					if (newSquare > 64 || newSquare < 1) {
+						return;
+					}
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
+
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					}
+				}
+				// East Move ----------------------------------------------------------------------------
+				else if (dirIndex === 3) {
+					let newSquare = curSquare + startingLegalMoves[dirIndex];
+
+					//prettier-ignore
+					if (rightEdge.includes(curSquare + 1)) {
+                            return;
+                        }
+					if (rightEdge.includes(curSquare)) {
+						return;
+					}
+					if (newSquare > 64 || newSquare < 1) {
+						return;
+					}
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
+
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					}
+				}
+				// West Move ----------------------------------------------------------------------------
+				else if (dirIndex === 4) {
+					let newSquare = curSquare + startingLegalMoves[dirIndex];
+					//prettier-ignore
+					if (rightEdge.includes(curSquare - 1)) {
+								return;
+							}
+					if (leftEdge.includes(curSquare)) {
+						return;
+					}
+					if (newSquare > 64 || newSquare < 1) {
+						return;
+					}
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					}
+				}
+				// North West Move ----------------------------------------------------------------------------
+				else if (dirIndex === 1) {
+					let newSquare = curSquare + startingLegalMoves[dirIndex];
+					//prettier-ignore
+					if (leftEdge.includes(curSquare - 1)) {
+                            return;
+                        }
+					if (leftEdge.includes(curSquare)) {
+						return;
+					}
+					if (newSquare > 64 || newSquare < 1) {
+						return;
+					}
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					}
+				}
+				// North East Move ----------------------------------------------------------------------------
+				else if (dirIndex === 2) {
+					let newSquare = curSquare + startingLegalMoves[dirIndex];
+					if (rightEdge.includes(curSquare)) {
+						return;
+					}
+					if (newSquare > 64 || newSquare < 1) {
+						return;
+					}
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
+
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					}
+				}
+				// South West Move ----------------------------------------------------------------------------
+				else if (dirIndex === 5) {
+					let newSquare = curSquare + startingLegalMoves[dirIndex];
+					if (leftEdge.includes(curSquare)) {
+						return;
+					}
+					if (newSquare > 64 || newSquare < 1) {
+						return;
+					}
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
+
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					}
+				}
+				// South East Move ----------------------------------------------------------------------------
+				else if (dirIndex === 6) {
+					let newSquare = curSquare + startingLegalMoves[dirIndex];
+					//prettier-ignore
+					if (rightEdge.includes(curSquare + 1)) {
+                        return;
+                    }
+					if (rightEdge.includes(curSquare)) {
+						return;
+					}
+					if (newSquare > 64 || newSquare < 1) {
+						return;
+					}
+					let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
+
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					}
+				}
+			}
+		});
+		return newLegalMoves;
+	};
 
 	render() {
 		return this.pieceHtml;
 	}
 }
 
+//////////////////////////////////////////////////////////////    Rook     //////////////////////////////////////////////////////////////
 export class Rook extends Piece {
 	constructor(props) {
 		super(props);
 		this.state = {
 			piece: `r`,
-			movesWhite: [8, 0, 0, 1, -1, 0, 0, -8],
-			movesBlack: [-8, 0, 0, -1, 1, 0, 0, 8],
+			moves: [8, 0, 0, 1, -1, 0, 0, -8],
 		};
 	}
+
+	findMoves = (row, sq, col) => {
+		// Piece move direction list:
+		// [N, NW, NE, E, W, SW, SE, S]
+		let color = col;
+		let newLegalMoves = [];
+		let curRow = Number(row.slice(3));
+		let curSquare = Number(sq.slice(2));
+		let leftEdge = [1, 9, 17, 25, 33, 41, 49, 57];
+		let rightEdge = [8, 16, 24, 32, 40, 48, 56, 64];
+		let startingLegalMoves = this.state.moves; //prettier-ignore
+
+		// Generate an array of legal squares we can go to
+		startingLegalMoves.forEach((move, dirIndex) => {
+			if (move) {
+				let pieceMoveToSquare = move + curSquare;
+
+				if (pieceMoveToSquare < 0 || pieceMoveToSquare > 65) return; // if piece is above or below board, get rid of move
+
+				// North Move ------------------------------------------------------------------------------------
+				if (dirIndex === 0) {
+					//prettier-ignore
+					for (let newSquare = curSquare + 8; newSquare <= 64; newSquare += 8) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// South Move ----------------------------------------------------------------------------
+				else if (dirIndex === 7) {
+					//prettier-ignore
+					for (let newSquare = curSquare - 8; newSquare > 0; newSquare -= 8) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// East Move ----------------------------------------------------------------------------
+				else if (dirIndex === 3) {
+					//prettier-ignore
+					for (let newSquare = curSquare + 1;	newSquare <= rightEdge[curRow - 1];	newSquare++) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if (rightEdge.includes(curSquare)) {
+                            return;
+                        } 
+                        else if(squareHasEnemy === `Friendly`){
+                            return; 
+                        } 
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// West Move ----------------------------------------------------------------------------
+				else if (dirIndex === 4) {
+					//prettier-ignore
+					for (let newSquare = curSquare - 1; newSquare >= leftEdge[curRow - 1]; newSquare--) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+                        
+                        if (leftEdge.includes(curSquare)) {
+                            return;
+                        } 
+                        else if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+			}
+		});
+		return newLegalMoves;
+	};
 
 	render() {
 		return this.pieceHtml;
@@ -555,10 +670,210 @@ export class Queen extends Piece {
 		super(props);
 		this.state = {
 			piece: `q`,
-			movesWhite: [8, 7, 9, 1, -1, -9, -7, -8],
-			movesBlack: [-8, -7, -9, -1, 1, 7, 9, 8],
+			moves: [8, 7, 9, 1, -1, -9, -7, -8],
 		};
 	}
+
+	findMoves = (row, sq, col) => {
+		// Piece move direction list:
+		// [N, NW, NE, E, W, SW, SE, S]
+		let color = col;
+		let newLegalMoves = [];
+		let curRow = Number(row.slice(3));
+		let curSquare = Number(sq.slice(2));
+		let leftEdge = [1, 9, 17, 25, 33, 41, 49, 57];
+		let rightEdge = [8, 16, 24, 32, 40, 48, 56, 64];
+		let startingLegalMoves = this.state.moves;
+
+		// Generate an array of legal squares we can go to
+		startingLegalMoves.forEach((move, dirIndex) => {
+			if (move) {
+				let pieceMoveToSquare = move + curSquare;
+
+				if (pieceMoveToSquare < 0 || pieceMoveToSquare > 65) return; // if piece is above or below board, get rid of move
+
+				// North Move ------------------------------------------------------------------------------------
+				if (dirIndex === 0) {
+					//prettier-ignore
+					for (let newSquare = curSquare + 8; newSquare <= 64; newSquare += 8) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// South Move ----------------------------------------------------------------------------
+				else if (dirIndex === 7) {
+					//prettier-ignore
+					for (let newSquare = curSquare - 8; newSquare > 0; newSquare -= 8) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// East Move ----------------------------------------------------------------------------
+				else if (dirIndex === 3) {
+					//prettier-ignore
+					for (let newSquare = curSquare + 1;	newSquare <= rightEdge[curRow - 1];	newSquare++) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if (rightEdge.includes(curSquare)) {
+                            return;
+                        } 
+                        else if(squareHasEnemy === `Friendly`){
+                            return; 
+                        } 
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// West Move ----------------------------------------------------------------------------
+				else if (dirIndex === 4) {
+					//prettier-ignore
+					for (let newSquare = curSquare - 1; newSquare >= leftEdge[curRow - 1]; newSquare--) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+                        
+                        if (leftEdge.includes(curSquare)) {
+                            return;
+                        } 
+                        else if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// North West Move ----------------------------------------------------------------------------
+				else if (dirIndex === 1) {
+					//prettier-ignore
+					for (let newSquare = curSquare + 7; newSquare <= 63; newSquare += 7) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if (leftEdge.includes(curSquare)) {
+                            return;
+                        } 
+                        else if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if (leftEdge.includes(newSquare)){
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        }
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// North East Move ----------------------------------------------------------------------------
+				else if (dirIndex === 2) {
+					//prettier-ignore
+					for (let newSquare = curSquare + 9; newSquare <= 64; newSquare += 9) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if (rightEdge.includes(curSquare)) {
+                            return;
+                        } 
+                        else if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if (rightEdge.includes(newSquare)){
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        }
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// South West Move ----------------------------------------------------------------------------
+				else if (dirIndex === 5) {
+					//prettier-ignore
+					for (let newSquare = curSquare - 9; newSquare >= 1; newSquare -= 9) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if (leftEdge.includes(curSquare)) {
+                            return;
+                        } 
+                        else if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if (leftEdge.includes(newSquare)){
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        }
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+				// South East Move ----------------------------------------------------------------------------
+				else if (dirIndex === 6) {
+					//prettier-ignore
+					for (let newSquare = curSquare - 7; newSquare >= 8; newSquare -= 7) {
+                        let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex)
+
+                        if (rightEdge.includes(curSquare)) {
+                            return;
+                        } 
+                        else if(squareHasEnemy === `Friendly`){
+                            return;
+                        } 
+                        else if (rightEdge.includes(newSquare)){
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        }
+                        else if(squareHasEnemy) {
+                            newLegalMoves.push(`sq` + newSquare);
+                            return;
+                        } 
+                        else {
+                            newLegalMoves.push(`sq` + newSquare);
+                        }
+                    }
+				}
+			}
+		});
+		return newLegalMoves;
+	};
 
 	render() {
 		return this.pieceHtml;
@@ -570,10 +885,144 @@ export class King extends Piece {
 		super(props);
 		this.state = {
 			piece: `k`,
-			movesWhite: [8, 7, 9, 1, -1, -9, -7, -8],
-			movesBlack: [-8, -7, -9, -1, 1, 7, 9, 8],
+			moves: [8, 7, 9, 1, -1, -9, -7, -8],
 		};
 	}
+
+	findMoves = (row, sq, col) => {
+		// Piece move direction list:
+		// [N, NW, NE, E, W, SW, SE, S]
+		let color = col;
+		let newLegalMoves = [];
+		let curRow = Number(row.slice(3));
+		let curSquare = Number(sq.slice(2));
+		let leftEdge = [1, 9, 17, 25, 33, 41, 49, 57];
+		let rightEdge = [8, 16, 24, 32, 40, 48, 56, 64];
+		let startingLegalMoves = this.state.moves; //prettier-ignore
+
+		// Generate an array of legal squares we can go to
+		startingLegalMoves.forEach((move, dirIndex) => {
+			if (move) {
+				let pieceMoveToSquare = move + curSquare;
+
+				if (pieceMoveToSquare < 0 || pieceMoveToSquare > 65) return; // if piece is above or below board, get rid of move
+
+				//prettier-ignore
+				let squareHasEnemy = checkForEnemy(curSquare,curRow,pieceMoveToSquare,color,dirIndex)
+
+				// North Move ------------------------------------------------------------------------------------
+				if (dirIndex === 0) {
+					//prettier-ignore
+					if(squareHasEnemy === `Friendly`){
+                        return;
+                    } 
+                    else if(squareHasEnemy) {
+                        newLegalMoves.push(`sq` + pieceMoveToSquare);
+                        return;
+                    } 
+                    else {
+                        newLegalMoves.push(`sq` + pieceMoveToSquare);
+                    }
+				}
+				// South Move ----------------------------------------------------------------------------
+				else if (dirIndex === 7) {
+					if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+					}
+				}
+				// East move ----------------------------------------------------------------------------
+				else if (dirIndex === 3) {
+					//prettier-ignore
+					if (rightEdge.includes(curSquare)) {
+						return;
+					} else if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+					}
+				}
+				// West move ----------------------------------------------------------------------------
+				else if (dirIndex === 4) {
+					//prettier-ignore
+					if (leftEdge.includes(curSquare)) {
+						return;
+					} else if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+					}
+				}
+				// North West Move ----------------------------------------------------------------------------
+				else if (dirIndex === 1) {
+					//prettier-ignore
+					if (leftEdge.includes(curSquare)) {
+						return;
+					} else if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+					}
+				}
+				// North East Move ----------------------------------------------------------------------------
+				else if (dirIndex === 2) {
+					//prettier-ignore
+					if (rightEdge.includes(curSquare)) {
+						return;
+					} else if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+					}
+				}
+				// South West Move ----------------------------------------------------------------------------
+				else if (dirIndex === 5) {
+					//prettier-ignore
+					if (leftEdge.includes(curSquare)) {
+						return;
+					} else if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+					}
+				}
+				// South East Move ----------------------------------------------------------------------------
+				else if (dirIndex === 6) {
+					//prettier-ignore
+					if (rightEdge.includes(curSquare)) {
+						return;
+					} else if (squareHasEnemy === `Friendly`) {
+						return;
+					} else if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+						return;
+					} else {
+						newLegalMoves.push(`sq` + pieceMoveToSquare);
+					}
+				}
+			}
+		});
+		return newLegalMoves;
+	};
 
 	render() {
 		return this.pieceHtml;

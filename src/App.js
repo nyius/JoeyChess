@@ -133,6 +133,7 @@ class JoeyChess extends React.Component {
 		const newPiece = pieceCheck(droppedPiece); // returns the new piece, and the previous square it was on
 		const turn = Object.values({ ...this.state.boardState });
 		const whoseTurn = turn[0];
+		const legalMoves = newPiece[2];
 
 		// Check if its the right players move. If not, do absolutely nothing
 		if (newPiece[0].props.piece[0] === whoseTurn) {
@@ -141,6 +142,9 @@ class JoeyChess extends React.Component {
 
 			// Remove/add a whole bunch of board highlights ----------------------------------------------------------------------------------------
 			removeSquareColors();
+			// if where we dropped it isn't a legal move, do nothing
+			// if (!legalMoves.includes(e.target.id) && !legalMoves.includes(e.target.parentNode.id)) return; //prettier-ignore
+
 			e.target.id ? e.target.classList.add(`highlight`):e.target.parentNode.classList.add(`highlight`); //prettier-ignore
 			document.querySelector('.highlight2')?.classList.remove(`highlight2`);
 			document.getElementById(newPiece[1][1]).classList.add('highlight2');
