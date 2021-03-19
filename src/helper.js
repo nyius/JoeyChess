@@ -352,3 +352,13 @@ export const checkForEnemy = (curSquare, curRow, pieceMoveToSquare, pieceColor, 
         if(squareHasEnemy) return squareHasEnemy;
     }
 };
+
+/**
+ * Simply removes any highlighting/bordering on a square
+ * @param {*} e
+ */
+export const removeSquareColors = (e) => {
+	document.querySelectorAll(`.dragOver`)?.forEach(el => el.classList.remove(`dragOver`)); //prettier-ignore
+	document.querySelectorAll(`.legalMoves`)?.forEach(el => el.classList.remove(`legalMoves`)) //prettier-ignore
+	document.querySelectorAll(`.highlight`)?.forEach(el => el.classList.remove(`highlight`)) //prettier-ignore
+};

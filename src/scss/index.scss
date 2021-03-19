@@ -1,13 +1,10 @@
-$boardSize: 100px;
-$pieceSquareSizeX: 100px;
-$pieceSquareSizeY: 100px;
-$pieceOffset: 96;
-$pieceSize: 579px;
+$squareSize: 10vw;
+$pieceSize: calc(#{$squareSize} - 20%);
 $chessPieces: '../img/800px-Chess_Pieces_Sprite.svg.png';
 $darkGrey1: #333;
 $highlight: rgb(102, 117, 32);
 $highlight2: rgb(81, 93, 25);
-$highlight3: rgb(145, 62, 37);
+$highlight3: rgb(136, 83, 67);
 
 * {
 	margin: 0;
@@ -22,8 +19,8 @@ body {
 
 .board_square {
 	caret-color: transparent; //This hides the typing cursor
-	height: $boardSize;
-	width: $boardSize;
+	height: $squareSize;
+	width: $squareSize;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -54,15 +51,16 @@ body {
 
 	& h4 {
 		position: absolute;
-		top: 77px;
-		left: 5px;
+		top: calc(#{$squareSize} - 20%);
+		left: calc(#{$squareSize} - 95%);
 		color: $darkGrey1;
+		font-size: 1.5vw;
 	}
 }
 
 .board_container {
 	display: grid;
-	grid-template-columns: repeat(8, $boardSize);
+	grid-template-columns: repeat(8, $squareSize);
 	gap: 0;
 	width: 100%;
 	height: 100%;
@@ -73,73 +71,62 @@ body {
 
 // White pieces
 .piece {
-	width: $pieceSquareSizeX;
-	height: $pieceSquareSizeY;
+	width: $squareSize;
+	height: $squareSize;
+	z-index: 1;
 
 	&:hover {
 		cursor: pointer;
 	}
 
 	&.wk {
-		background: url($chessPieces) calc(#{$pieceOffset} * 0px)
-			calc(#{$pieceOffset} * 0px);
+		background: url('../img/wk.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.wq {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 1px)
-			calc(#{$pieceOffset} * 0px);
+		background: url('../img/wq.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.wb {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 2px)
-			calc(#{$pieceOffset} * 0px);
+		background: url('../img/wb.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.wn {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 3px)
-			calc(#{$pieceOffset} * 0px);
+		background: url('../img/wn.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.wr {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 4px)
-			calc(#{$pieceOffset} * 0px);
+		background: url('../img/wr.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.wp {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 5px)
-			calc(#{$pieceOffset} * 0px);
+		background: url('../img/wp.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 
 	// Black pieces
 	&.bk {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 0px)
-			calc(#{$pieceOffset} * 1px);
+		background: url('../img/bk.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.bq {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 1px)
-			calc(#{$pieceOffset} * 1px);
+		background: url('../img/bq.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.bb {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 2px)
-			calc(#{$pieceOffset} * 1px);
+		background: url('../img/bb.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.bn {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 3px)
-			calc(#{$pieceOffset} * 1px);
+		background: url('../img/bn.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.br {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 4px)
-			calc(#{$pieceOffset} * 1px);
+		background: url('../img/br.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 	&.bp {
-		background: url($chessPieces) calc(-#{$pieceOffset} * 5px)
-			calc(#{$pieceOffset} * 1px);
+		background: url('../img/bp.svg') center center no-repeat;
 		background-size: $pieceSize;
 	}
 }

@@ -2,7 +2,8 @@ import React from 'react';
 import './scss/index.scss';
 import { BOARD_HEIGHT, BOARD_WIDTH } from './config';
 // eslint-disable-next-line
-import { parseFEN, generateFEN, pieceCheck } from './helper';
+//prettier-ignore
+import { parseFEN, generateFEN, pieceCheck, removeSquareColors } from './helper';
 
 class JoeyChess extends React.Component {
 	constructor(props) {
@@ -139,9 +140,7 @@ class JoeyChess extends React.Component {
 			let newFEN, parsedFEN;
 
 			// Remove/add a whole bunch of board highlights ----------------------------------------------------------------------------------------
-			document.querySelectorAll(`.highlight`)?.forEach(el => el.classList.remove(`highlight`)) //prettier-ignore
-			document.querySelectorAll(`.legalMoves`)?.forEach(el => el.classList.remove(`legalMoves`)) //prettier-ignore
-			document.querySelectorAll(`.dragOver`)?.forEach(el => el.classList.remove(`dragOver`)) //prettier-ignore
+			removeSquareColors();
 			e.target.id ? e.target.classList.add(`highlight`):e.target.parentNode.classList.add(`highlight`); //prettier-ignore
 			document.querySelector('.highlight2')?.classList.remove(`highlight2`);
 			document.getElementById(newPiece[1][1]).classList.add('highlight2');
@@ -160,9 +159,7 @@ class JoeyChess extends React.Component {
 				boardState: parsedFEN[1],
 			});
 		} else {
-			document.querySelectorAll(`.dragOver`)?.forEach(el => el.classList.remove(`dragOver`)); //prettier-ignore
-			document.querySelectorAll(`.legalMoves`)?.forEach(el => el.classList.remove(`legalMoves`)) //prettier-ignore
-			document.querySelectorAll(`.highlight`)?.forEach(el => el.classList.remove(`highlight`)) //prettier-ignore
+			removeSquareColors();
 		}
 	};
 
@@ -201,13 +198,13 @@ class JoeyChess extends React.Component {
 				let squareCount = 64 - j * 8 - i + 1; // This is so 1 is the bottom left (if youre white. super annoying because var - var in for loop breaks apparently)
 				let squareId = `sq${squareCount}`; // Get the current square ID
 				let curPiece = curBoardRow[squareId]; // pass the current square id in so we get its value and find out if it has a piece
-				let squareClass;
+				let squareClassName;
 
 				if (j % 2 === 0) {
-					squareClass =
+					squareClassName =
 						i % 2 === 0 ? 'board_square --white' : 'board_square --black';
 				} else {
-					squareClass =
+					squareClassName =
 						i % 2 === 0 ? 'board_square --black' : 'board_square --white';
 				}
 
@@ -216,7 +213,7 @@ class JoeyChess extends React.Component {
 						id={'sq' + squareCount}
 						data-row={'row' + rowCount}
 						key={squareCount}
-						className={squareClass}
+						className={squareClassName}
 						onDrop={(e) => this.handleDrop(e)}
 						onDragEnter={(e) => this.handleDragEnter(e)}
 						onDragOver={(e) => this.handleDragOver(e)}
