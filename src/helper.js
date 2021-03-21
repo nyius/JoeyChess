@@ -2,8 +2,7 @@
 import { Rook, Knight, King, Queen, Pawn, Bishop } from './Pieces';
 import { BOARD_HEIGHT, BOARD_WIDTH } from './config';
 
-let previousPosition;
-let pieceMoves;
+let previousPosition, pieceMoves, kingInCheck;
 
 const prevPosition = (e) => {
 	previousPosition = e;
@@ -17,18 +16,24 @@ const legalMoves = (newLegalMoves) => {
 	pieceMoves = newLegalMoves;
 };
 
-const wp = <Pawn piece="white piece wp" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const wr = <Rook piece="white piece wr" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const wb = <Bishop piece="white piece wb" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const wn = <Knight piece="white piece wn" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const wq = <Queen piece="white piece wq" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const wk = <King piece="white piece wk" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const bp = <Pawn piece="black piece bp" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const br = <Rook piece="black piece br" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const bb = <Bishop piece="black piece bb" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const bn = <Knight piece="black piece bn" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const bq = <Queen piece="black piece bq" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
-const bk = <King piece="black piece bk" prevPosition={prevPosition} legalMoves={legalMoves} />; //prettier-ignore
+const checkForCheck = (e) => {
+	if (e === `check`) {
+		kingInCheck = true;
+	}
+};
+
+const wp = <Pawn piece="white piece wp" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const wr = <Rook piece="white piece wr" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const wb = <Bishop piece="white piece wb" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const wn = <Knight piece="white piece wn" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const wq = <Queen piece="white piece wq" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const wk = <King piece="white piece wk" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const bp = <Pawn piece="black piece bp" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const br = <Rook piece="black piece br" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const bb = <Bishop piece="black piece bb" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const bn = <Knight piece="black piece bn" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const bq = <Queen piece="black piece bq" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
+const bk = <King piece="black piece bk" prevPosition={prevPosition} legalMoves={legalMoves} checkForCheck={checkForCheck} />; //prettier-ignore
 
 // Check if the letter is uppercase, lowercase, or letter (for boardPositionFEN)
 // Returns a new board state object
@@ -269,29 +274,29 @@ export const generateFEN = (newBoardPosition, currentState) => {
  */
 export const pieceCheck = (piece) => {
 	if (piece.includes(`bb`)) {
-		return [bb, previousPosition, pieceMoves];
+		return [bb, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`bn`)) {
-		return [bn, previousPosition, pieceMoves];
+		return [bn, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`br`)) {
-		return [br, previousPosition, pieceMoves];
+		return [br, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`bp`)) {
-		return [bp, previousPosition, pieceMoves];
+		return [bp, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`bq`)) {
-		return [bq, previousPosition, pieceMoves];
+		return [bq, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`bk`)) {
-		return [bk, previousPosition, pieceMoves];
+		return [bk, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`wn`)) {
-		return [wn, previousPosition, pieceMoves];
+		return [wn, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`wb`)) {
-		return [wb, previousPosition, pieceMoves];
+		return [wb, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`wr`)) {
-		return [wr, previousPosition, pieceMoves];
+		return [wr, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`wp`)) {
-		return [wp, previousPosition, pieceMoves];
+		return [wp, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`wq`)) {
-		return [wq, previousPosition, pieceMoves];
+		return [wq, previousPosition, pieceMoves, kingInCheck];
 	} else if (piece.includes(`wk`)) {
-		return [wk, previousPosition, pieceMoves];
+		return [wk, previousPosition, pieceMoves, kingInCheck];
 	}
 };
 
@@ -362,4 +367,5 @@ export const removeSquareColors = (e) => {
 	document.querySelectorAll(`.dragOver`)?.forEach(el => el.classList.remove(`dragOver`)); //prettier-ignore
 	document.querySelectorAll(`.legalMoves`)?.forEach(el => el.classList.remove(`legalMoves`)) //prettier-ignore
 	document.querySelectorAll(`.highlight`)?.forEach(el => el.classList.remove(`highlight`)) //prettier-ignore
+	document.querySelectorAll(`.runAway`)?.forEach(el => el.classList.remove(`runAway`)) //prettier-ignore
 };

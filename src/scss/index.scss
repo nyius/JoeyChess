@@ -1,10 +1,11 @@
-$squareSize: 10vw;
+$squareSize: 6rem;
 $pieceSize: calc(#{$squareSize} - 20%);
 $chessPieces: '../img/800px-Chess_Pieces_Sprite.svg.png';
 $darkGrey1: #333;
 $highlight: rgb(102, 117, 32);
 $highlight2: rgb(81, 93, 25);
 $highlight3: rgb(136, 83, 67);
+$highlight4: rgb(80, 70, 221);
 
 * {
 	margin: 0;
@@ -18,6 +19,7 @@ body {
 }
 
 .board_square {
+	position: absolute;
 	caret-color: transparent; //This hides the typing cursor
 	height: $squareSize;
 	width: $squareSize;
@@ -48,22 +50,25 @@ body {
 		background-color: $highlight3;
 		border: solid 1px rgba($color: #000000, $alpha: 0.1);
 	}
+	&.runAway {
+		background-color: $highlight4;
+		border: solid 1px rgba($color: #000000, $alpha: 0.1);
+	}
 
 	& h4 {
 		position: absolute;
 		top: calc(#{$squareSize} - 20%);
 		left: calc(#{$squareSize} - 95%);
 		color: $darkGrey1;
-		font-size: 1.5vw;
+		font-size: 90%;
 	}
 }
 
 .board_container {
+	position: relative;
 	display: grid;
 	grid-template-columns: repeat(8, $squareSize);
 	gap: 0;
-	width: 100%;
-	height: 100%;
 	align-items: center;
 	justify-content: center;
 	margin: 50px;

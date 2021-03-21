@@ -134,18 +134,20 @@ class JoeyChess extends React.Component {
 		const turn = Object.values({ ...this.state.boardState });
 		const whoseTurn = turn[0];
 		const legalMoves = newPiece[2];
+		const kingInCheck = newPiece[3];
 
 		// Check if its the right players move. If not, do absolutely nothing
 		if (newPiece[0].props.piece[0] === whoseTurn) {
 			let newBoardState = { ...this.state.board };
 			let newFEN, parsedFEN;
 
-			if (legalMoves.includes(`check`)) console.log(`yep`);
+			// if (kingInCheck) return;
+
+			// If Our move isn't legal, do nothing
+			if (!legalMoves.includes(e.target.id) && !legalMoves.includes(e.target.parentNode.id)) return; //prettier-ignore
+
 			// Remove/add a whole bunch of board highlights ----------------------------------------------------------------------------------------
 			removeSquareColors();
-			// if where we dropped it isn't a legal move, do nothing
-			// if (!legalMoves.includes(e.target.id) && !legalMoves.includes(e.target.parentNode.id)) return; //prettier-ignore
-
 			e.target.id ? e.target.classList.add(`highlight`):e.target.parentNode.classList.add(`highlight`); //prettier-ignore
 			document.querySelector('.highlight2')?.classList.remove(`highlight2`);
 			document.getElementById(newPiece[1][1]).classList.add('highlight2');
@@ -243,7 +245,9 @@ class JoeyChess extends React.Component {
 		return (
 			<div className="board_container">
 				<this.chessBoard />
-				<h1>{whoseTurn + ` ` + turnNum}</h1>
+				<div id="turn">
+					<h1>{whoseTurn + ` ` + turnNum}</h1>
+				</div>
 			</div>
 		);
 	}
