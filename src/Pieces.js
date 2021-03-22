@@ -23,24 +23,27 @@ class Piece extends React.Component {
 			draggable="true"
 			onClick={(e) => {
 				removeSquareColors();
-				let row   = e.target.parentNode.dataset.row; //prettier-ignore
-				let sq    = e.target.parentNode.id; //prettier-ignore
-				let color = e.target.className.slice(0, 1); //prettier-ignore
-				this.props.checkForCheck(checkForCheck());
+				let row        = e.target.parentNode.dataset.row; //prettier-ignore
+				let sq         = e.target.parentNode.id; //prettier-ignore
+				let color      = e.target.className.slice(0, 1); //prettier-ignore
+				let getBoardState = this.props.getBoardState();
+
 				// checkEveryMove(color);
-				this.props.legalMoves(this.findMoves(row, sq, color));
+				this.props.checkForCheck(checkForCheck());
+				this.props.legalMoves(this.findMoves(row, sq, color, getBoardState));
 				e.target.parentNode.classList.add(`highlight`);
 			}}
 			onDragStart={(e) => {
 				removeSquareColors();
-				let row   = e.target.parentNode.dataset.row; //prettier-ignore
-				let sq    = e.target.parentNode.id; //prettier-ignore
-				let color = e.target.className.slice(0, 1); //prettier-ignore
+				let row        = e.target.parentNode.dataset.row; //prettier-ignore
+				let sq         = e.target.parentNode.id; //prettier-ignore
+				let color      = e.target.className.slice(0, 1); //prettier-ignore
+				let getBoardState = this.props.getBoardState();
 
 				this.handleDrag(e);
 				this.props.prevPosition([row, sq]);
 				this.props.checkForCheck(checkForCheck());
-				this.props.legalMoves(this.findMoves(row, sq, color));
+				this.props.legalMoves(this.findMoves(row, sq, color, getBoardState));
 				e.target.parentNode.classList.add(`highlight`);
 			}}
 		></div>
@@ -71,8 +74,8 @@ export class Knight extends Piece {
 	 * @param {String} col Takes in the current color
 	 * @returns
 	 */
-	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
+	findMoves = (row, sq, col, getBoardState) => {
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece, getBoardState); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -97,8 +100,8 @@ export class Rook extends Piece {
 	 * @param {String} col Takes in the current color
 	 * @returns
 	 */
-	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
+	findMoves = (row, sq, col, getBoardState) => {
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece, getBoardState); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -123,8 +126,8 @@ export class Queen extends Piece {
 	 * @param {String} col Takes in the current color
 	 * @returns
 	 */
-	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
+	findMoves = (row, sq, col, getBoardState) => {
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece, getBoardState); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -142,8 +145,8 @@ export class King extends Piece {
 		};
 	}
 
-	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
+	findMoves = (row, sq, col, getBoardState) => {
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece, getBoardState); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -169,8 +172,8 @@ export class Pawn extends Piece {
 	 * @param {String} col Takes in the current color
 	 * @returns
 	 */
-	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
+	findMoves = (row, sq, col, getBoardState) => {
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece, getBoardState); //prettier-ignore
 		return newLegalMoves;
 	};
 
@@ -195,8 +198,8 @@ export class Bishop extends Piece {
 	 * @param {String} col Takes in the current color
 	 * @returns
 	 */
-	findMoves = (row, sq, col) => {
-		const newLegalMoves = findMoves(row, sq, col, this.state.piece); //prettier-ignore
+	findMoves = (row, sq, col, getBoardState) => {
+		const newLegalMoves = findMoves(row, sq, col, this.state.piece, getBoardState); //prettier-ignore
 		return newLegalMoves;
 	};
 

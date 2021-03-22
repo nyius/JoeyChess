@@ -119,8 +119,6 @@ class JoeyChess extends React.Component {
 	};
 
 	handleDrop = (e) => {
-		// TODO: illegal moves
-		// TODO: Check
 		// TODO: EN-PASSANT
 		// TODO: CASTLE
 		// TODO: PROMOTING
@@ -152,10 +150,26 @@ class JoeyChess extends React.Component {
 			document.getElementById(newPiece[1][1]).classList.add('highlight2');
 			//  --------------------------------------------------------------------------------------------------------------------------------------
 
-			// Remove the piece from the old square, move it to the new square, and generate a new FEN + parse it and save it to the state -------------
+			// Handle Castling Movements -------------------------------------------------------------------------------------------------------------
+			//prettier-ignore
+			if (droppedPiece.includes(`wk`) && newPiece[1][1] === `sq5` && this.state.newSquare[1] === `sq7`) {
+				let newRook = pieceCheck(`white piece wr`);
+				newBoardState[`row1`][`sq8`] = ``
+				newBoardState[`row1`][`sq6`] = newRook[0]
+			}
+			//prettier-ignore
+			if (droppedPiece.includes(`wk`) && newPiece[1][1] === `sq5` && this.state.newSquare[1] === `sq3`) {
+				let newRook = pieceCheck(`white piece wr`);
+				newBoardState[`row1`][`sq1`] = ``
+				newBoardState[`row1`][`sq4`] = newRook[0]
+			}
+			//  ----------------------------------------------------------------------------------------------------------------------------------------
+
+			// Remove the piece from the old square, move it to the new square, and generate a new FEN + parse it and save it to the state
 			newBoardState[newPiece[1][0]][newPiece[1][1]] = ''; // set the square that the piece came from to blank
 			newBoardState[this.state.newSquare[0]][this.state.newSquare[1]] = newPiece[0]; //prettier-ignore
 			newFEN = generateFEN(newBoardState, this.state.boardState); // generate a new FEN based on the board
+			console.log(newFEN);
 			parsedFEN = parseFEN({ ...this.state.board }, [...newFEN]); // parse the new FEN into the new position
 			//  --------------------------------------------------------------------------------------------------------------------------------------
 

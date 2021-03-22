@@ -6,7 +6,7 @@ let everyMove            = []; //prettier-ignore
 let checkingLine         = []; //prettier-ignore
 let checkingLineTemp     = []; //prettier-ignore
 let everyLegalMove       = []; //prettier-ignore
-let kingInCheck, turn, lastTurn;
+let kingInCheck, turn, lastTurn, oldBoardState, newBoardState;
 
 export const checkForCheck = (e) => {
 	checkingPieceSquares   = []; //prettier-ignore
@@ -40,8 +40,8 @@ export const checkForCheck = (e) => {
 					//prettier-ignore
 					if (document.getElementById(move).innerHTML.includes(color === `w` ? `bk` : `wk`)) {
 						checkingPieceSquares.push(...legalMoves);
-						checkState = turn.slice(0,1);
-						kingInCheck = checkState;
+						checkState  = turn.slice(0,1); //prettier-ignore
+						kingInCheck = checkState; //prettier-ignore
 					}
 				});
 				return `Done`;
@@ -49,15 +49,16 @@ export const checkForCheck = (e) => {
 			return null;
 		});
 	}
-	lastTurn = turn;
-	everyLegalMove = everyLegalMoveTemp;
+	lastTurn       = turn; //prettier-ignore
+	everyLegalMove = everyLegalMoveTemp; //prettier-ignore
 	return checkState;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////    Find legal moves     //////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-export const findMoves = (row, sq, col, pc) => {
+export const findMoves = (row, sq, col, pc, getBoardState) => {
+	if (getBoardState) oldBoardState = getBoardState;
 	// Piece move direction list:
 	// [N, NW, NE, E, W, SW, SE, S]
 	let startingLegalMoves; //prettier-ignore
@@ -76,21 +77,45 @@ export const findMoves = (row, sq, col, pc) => {
 
 	//  ----------------------------------------------------------------------------
 	// TODO: Fix discovered check
+	// TODO: EN-PASSANT
+	// TODO: Cant Castle through check
 	//  ----------------------------------------------------------------------------
 
 	// Generate an array of legal squares we can go to
 	startingLegalMoves.forEach((move, dirIndex) => {
 		if (move) {
 			let pieceMoveToSquare = move + curSquare;
-
-			if (pieceMoveToSquare < 0 || pieceMoveToSquare > 65) return; // if piece is above or below board, get rid of move immediately
+			if (pieceMoveToSquare < 0 || pieceMoveToSquare > 64) return; // if piece is above or below board, get rid of move immediately
 
 			const moveCheck = (newSquare) => {
 				let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-				let pieceInFront, piece2InFront;
+				let pieceInFront, piece2InFront, pieceLeft1, pieceLeft2, pieceLeft3, pieceRight1, pieceRight2; //prettier-ignore
+
 				if (piece === `p`) {
 					pieceInFront  = document.getElementById(`sq` + pieceMoveToSquare); //prettier-ignore
 					piece2InFront = document.getElementById(`sq` + Number(pieceMoveToSquare + move)) //prettier-ignore
+				}
+				//prettier-ignore
+				if (piece === `k` && color === `w` && curSquare === 5 && getBoardState?.includes(`K`)) {
+					pieceRight1  = document.getElementById(`sq` + 6).innerHTML; //prettier-ignore
+					pieceRight2 = document.getElementById(`sq` + 7).innerHTML; //prettier-ignore
+				}
+				//prettier-ignore
+				if (piece === `k` && color === `w` && curSquare === 5 && getBoardState?.includes(`Q`)) {
+					pieceLeft1  = document.getElementById(`sq` + 4).innerHTML; //prettier-ignore
+					pieceLeft2 = document.getElementById(`sq` + 3).innerHTML; //prettier-ignore
+					pieceLeft3 = document.getElementById(`sq` + 2).innerHTML; //prettier-ignore
+				}
+				//prettier-ignore
+				if (piece === `k` && color === `b` && curSquare === 61 && getBoardState?.includes(`k`)) {
+					pieceRight1  = document.getElementById(`sq` + 62).innerHTML; //prettier-ignore
+					pieceRight2 = document.getElementById(`sq` + 63).innerHTML; //prettier-ignore
+				}
+				//prettier-ignore
+				if (piece === `k` && color === `b` && curSquare === 61 && getBoardState?.includes(`q`)) {
+					pieceLeft1  = document.getElementById(`sq` + 60).innerHTML; //prettier-ignore
+					pieceLeft2 = document.getElementById(`sq` + 59).innerHTML; //prettier-ignore
+					pieceLeft3 = document.getElementById(`sq` + 58).innerHTML; //prettier-ignore
 				}
 
 				if (color !== kingInCheck) {
@@ -126,6 +151,25 @@ export const findMoves = (row, sq, col, pc) => {
 						(dirIndex === 6 && piece === `p` && squareHasEnemy) //prettier-ignore
 					) {
 						newLegalMoves.push(`sq` + newSquare);
+					}
+					if (
+						piece === `k` &&
+						!pieceLeft1?.includes(`piece`) &&
+						!pieceLeft2?.includes(`piece`) &&
+						!pieceLeft3?.includes(`piece`)
+					) {
+						//prettier-ignore
+						if (piece === `k` && curSquare === 5 && getBoardState?.includes(`Q`)) newLegalMoves.push(`sq` + 3); //prettier-ignore
+						if (piece === `k` && curSquare === 61 && getBoardState?.includes(`q`)) newLegalMoves.push(`sq` + 59); //prettier-ignore
+					}
+					if (
+						piece === `k` &&
+						!pieceRight1?.includes(`piece`) &&
+						!pieceRight2?.includes(`piece`)
+					) {
+						//prettier-ignore
+						if (piece === `k` && curSquare === 5 && getBoardState?.includes(`K`)) newLegalMoves.push(`sq` + 7); //prettier-ignore
+						if (piece === `k` && curSquare === 61 && getBoardState?.includes(`k`)) newLegalMoves.push(`sq` + 63); //prettier-ignore
 					}
 					if (
 						(dirIndex === 0 && piece === `p` && pieceInFront.innerHTML.includes(`piece`)) ||
@@ -533,7 +577,7 @@ export const findMoves = (row, sq, col, pc) => {
 					checkingLineTemp = [];
 
 					//prettier-ignore
-					for (let newSquare = curSquare - 7; newSquare >= 8; newSquare -= 7) {
+					for (let newSquare = curSquare - 7; newSquare >= 0; newSquare -= 7) {
 						checkingLineTemp.push(newSquare)
 						let lineCheck = moveCheck(newSquare)
 						if(lineCheck === `check`){
@@ -1062,7 +1106,6 @@ export const findEveryMove = (row, sq, col, pc) => {
 					}
 				}
 			}
-
 			// Pawn ----------------------------------------------------------------------------
 			if (piece === `p`) {
 				let squareHasEnemy = checkForEnemy(

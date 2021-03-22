@@ -1,3 +1,4 @@
+// [N, NW, NE, E, W, SW, SE, S]
 export const BOARD_WIDTH        = 8; //prettier-ignore
 export const BOARD_HEIGHT       = 8; //prettier-ignore
 export const LEFT_EDGE          = [1, 9, 17, 25, 33, 41, 49, 57]; //prettier-ignore
