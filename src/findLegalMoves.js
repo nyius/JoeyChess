@@ -1,64 +1,56 @@
 import { checkForEnemy } from './helper';
-
-// TODO: I Need to check for check in here, and return NO legal moves if we're in check
+import {LEFT_EDGE, RIGHT_EDGE, KNIGHT_MOVES, BISHOP_MOVES, ROOK_MOVES, QUEEN_MOVES, KING_MOVES, PAWN_MOVES_WHITE, PAWN_MOVES_BLACK} from './config' //prettier-ignore
 
 let checkingPieceSquares = [];
-let everyMove = [];
-let kingInCheck;
+let everyMove            = []; //prettier-ignore
+let checkingLine         = []; //prettier-ignore
+let checkingLineTemp     = []; //prettier-ignore
+let everyLegalMove       = []; //prettier-ignore
+let kingInCheck, turn, lastTurn;
 
 export const checkForCheck = (e) => {
-	// If its white turn, this function checks every single black piece and finds its legal moves.
-	// If one of its legal squares lands on whites king, we're in check and cant do anything about it.
-	// Return a list of all squares white(or blacks depending on whose turn it is) controls to the find legal moves function.
-	checkingPieceSquares = [];
-	let pieces = []; //prettier-ignore
+	checkingPieceSquares   = []; //prettier-ignore
+	kingInCheck            = false; //prettier-ignore
 	let checkState;
-	let turn = document.getElementById(`turn`).innerHTML.includes(`w`) ? `white` : `black`; //prettier-ignore
+	let pieces             = []; //prettier-ignore
+	let everyLegalMoveTemp = []; //prettier-ignore
+	turn                   = document.getElementById(`turn`).innerHTML.includes(`w`) ? `white` : `black`; //prettier-ignore
 	turn === `black` ? (pieces = [`wp`, `wr`, `wn`, `wb`, `wq`, `wk`]) : (pieces = [`bb`, `br`, `bn`, `bk`, `bq`, `bp`]); //prettier-ignore
+	if (turn !== lastTurn) checkingLine = []; // If we're on a new turn, reset the checking line.
 
-	// For every square on the board
 	for (let square = 1; square <= 64; square++) {
 		let squareEl = document.getElementById(`sq` + square);
 
-		// And for every piece that exists, check the square for it
-		// As soon as we find a matching piece, throw away the other results
+		// for every piece of our enemies color, check the square for it
 		pieces.some((piece) => {
 			if (squareEl.innerHTML.includes(piece)) {
 				if (squareEl.innerHTML.includes(turn)) return; // if any squares contain whoevers turn it us, skip them.
-				let color = piece.slice(0, 1);
-				let pc = piece.slice(1, 2);
-				let row = squareEl.dataset.row;
 
-				let legalMoves = findMoves(row, `sq` + square, color, pc); // Check for legal moves for that piece
+				let color      = piece.slice(0, 1); //prettier-ignore
+				let pc         = piece.slice(1, 2); //prettier-ignore
+				let row        = squareEl.dataset.row; //prettier-ignore
+				let legalMoves = findMoves(row, `sq` + square, color, pc); //prettier-ignore
 
-				if (legalMoves.length === 0) return `Done`;
+				if (legalMoves.length === 0) return `Done`; // Exit if theres no legal moves for that piece
 
 				// For every legal move that piece has
 				legalMoves.forEach((move) => {
-					let squareEl2 = document.getElementById(move).innerHTML;
-					if (checkingPieceSquares.includes(move)) return; // if we already have that piece saved, get rid of it
-					checkingPieceSquares.push(...legalMoves);
-					// checkState = `check`;
-					// kingInCheck = true;
+					everyLegalMoveTemp.push(...legalMoves);
 					// check if that legal move contains the opposite color king
-					// if (squareEl2.includes(color === `w` ? `bk` : `wk`)) {
-					// 	if (checkingPieceSquares.includes(move)) {
-					// 		return;
-					// 	}
-					// 	return;
-					// }
+					//prettier-ignore
+					if (document.getElementById(move).innerHTML.includes(color === `w` ? `bk` : `wk`)) {
+						checkingPieceSquares.push(...legalMoves);
+						checkState = turn.slice(0,1);
+						kingInCheck = checkState;
+					}
 				});
 				return `Done`;
 			}
 			return null;
 		});
 	}
-
-	if (checkingPieceSquares) {
-		checkingPieceSquares.forEach((square) => {
-			document.getElementById(square).classList.add(`runAway`);
-		});
-	}
+	lastTurn = turn;
+	everyLegalMove = everyLegalMoveTemp;
 	return checkState;
 };
 
@@ -66,46 +58,22 @@ export const checkForCheck = (e) => {
 //////////////////////////////////////////////////////////////    Find legal moves     //////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export const findMoves = (row, sq, col, pc) => {
+	console.log(checkingLine);
 	// Piece move direction list:
 	// [N, NW, NE, E, W, SW, SE, S]
-	let color = col;
-	let piece = pc;
-	let newLegalMoves = [];
-	let curRow = Number(row.slice(3));
-	let curSquare = Number(sq.slice(2));
-	let leftEdge = [1, 9, 17, 25, 33, 41, 49, 57];
-	let rightEdge = [8, 16, 24, 32, 40, 48, 56, 64];
-	let startingLegalMoves;
-	let knightMoves = [15, 6, 17, 10, -10, -17, -6, -15];
-	let bishopMoves = [0, 9, 7, 0, 0, -9, -7, 0];
-	let rookMoves = [8, 0, 0, 1, -1, 0, 0, -8];
-	let queenMoves = [8, 7, 9, 1, -1, -9, -7, -8];
-	let kingMoves = [8, 7, 9, 1, -1, -9, -7, -8];
-	let pawnMovesWhite = [8, 7, 9, 0, 0, 0, 0, 0];
-	let pawnMovesBlack = [0, 0, 0, 0, 0, -7, -9, -8];
+	let startingLegalMoves; //prettier-ignore
+	let color             = col; //prettier-ignore
+	let piece             = pc; //prettier-ignore
+	let newLegalMoves     = []; //prettier-ignore
+	let curRow            = Number(row.slice(3)); //prettier-ignore
+	let curSquare         = Number(sq.slice(2)); //prettier-ignore
 
-	if (piece === `p`) {
-		startingLegalMoves = color === `b` ? pawnMovesBlack : pawnMovesWhite;
-	}
-	if (piece === `n`) {
-		startingLegalMoves = knightMoves;
-	}
-	if (piece === `b`) {
-		startingLegalMoves = bishopMoves;
-	}
-	if (piece === `r`) {
-		startingLegalMoves = rookMoves;
-	}
-	if (piece === `q`) {
-		startingLegalMoves = queenMoves;
-	}
-	if (piece === `k`) {
-		startingLegalMoves = kingMoves;
-	}
-
-	// NEED TO FIND MOVES DEPENDING ON WHAT PIECE IS CLICKED
-	// AKA IF BLACK CLICKS BUT THEYRE IN CHECK, SHOW ONLY THEIR MOVES THEY CAN DO IN CHECK
-	// BUT IF WHITE CLICKS WHILE BLACKS IN CHECK, SHOW THEIR FULL RANGE OF MOVES LIKE NORMAL
+	if (piece === `p`) startingLegalMoves = color === `b` ? PAWN_MOVES_BLACK : PAWN_MOVES_WHITE; //prettier-ignore
+	if (piece === `n`) startingLegalMoves = KNIGHT_MOVES;
+	if (piece === `b`) startingLegalMoves = BISHOP_MOVES;
+	if (piece === `r`) startingLegalMoves = ROOK_MOVES;
+	if (piece === `q`) startingLegalMoves = QUEEN_MOVES;
+	if (piece === `k`) startingLegalMoves = KING_MOVES;
 
 	// Generate an array of legal squares we can go to
 	startingLegalMoves.forEach((move, dirIndex) => {
@@ -116,117 +84,178 @@ export const findMoves = (row, sq, col, pc) => {
 
 			const moveCheck = (newSquare) => {
 				let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
-
-				if (squareHasEnemy === `Friendly`) {
-					return true;
+				if (color !== kingInCheck) {
+					if (squareHasEnemy === `Friendly`) return true;
+					if (squareHasEnemy === `check`) {
+						newLegalMoves.push(`sq` + newSquare);
+						return `check`;
+					}
+					// North West
+					if (
+						(dirIndex === 1 && LEFT_EDGE.includes(newSquare)) ||
+						(dirIndex === 5 && LEFT_EDGE.includes(newSquare)) ||
+						(dirIndex === 2 && RIGHT_EDGE.includes(newSquare)) ||
+						(dirIndex === 6 && RIGHT_EDGE.includes(newSquare))
+					) {
+						newLegalMoves.push(`sq` + newSquare);
+						return true;
+					}
+					if (
+						(dirIndex === 3 && RIGHT_EDGE.includes(curSquare)) ||
+						(dirIndex === 2 && RIGHT_EDGE.includes(curSquare)) ||
+						(dirIndex === 6 && RIGHT_EDGE.includes(curSquare)) ||
+						(dirIndex === 5 && LEFT_EDGE.includes(curSquare)) ||
+						(dirIndex === 4 && LEFT_EDGE.includes(curSquare)) ||
+						(dirIndex === 1 && LEFT_EDGE.includes(curSquare)) ||
+						(dirIndex === 7 && piece === `n` && RIGHT_EDGE.includes(curSquare)) ||//prettier-ignore
+						(dirIndex === 3 && piece === `n` && RIGHT_EDGE.includes(curSquare + 1)) || //prettier-ignore
+						(dirIndex === 6 && piece === `n` && RIGHT_EDGE.includes(curSquare + 1)) || //prettier-ignore
+						(dirIndex === 4 && piece === `n` && LEFT_EDGE.includes(curSquare - 1)) || //prettier-ignore
+						(dirIndex === 1 && piece === `n` && LEFT_EDGE.includes(curSquare - 1)) || //prettier-ignore
+						(dirIndex === 0 && piece === `n` && LEFT_EDGE.includes(curSquare)) //prettier-ignore
+					) {
+						return true;
+					}
+					if (squareHasEnemy) {
+						newLegalMoves.push(`sq` + newSquare);
+						return true;
+					} else {
+						newLegalMoves.push(`sq` + newSquare);
+					}
 				}
-				// North
-				if (dirIndex === 0 && piece === `n` && leftEdge.includes(curSquare)) {
-					return;
-				}
-
-				// North West
-				if (dirIndex === 1 && leftEdge.includes(newSquare)) {
-					newLegalMoves.push(`sq` + newSquare);
-					return true;
-				}
-				if (dirIndex === 1 && leftEdge.includes(curSquare)) {
-					return true;
-				}
-				//prettier-ignore
-				if (dirIndex === 1 && piece === `n` && leftEdge.includes(curSquare - 1)) {
-					return true;
-				}
-
-				// North East
-				if (dirIndex === 2 && rightEdge.includes(newSquare)) {
-					newLegalMoves.push(`sq` + newSquare);
-					return true;
-				}
-				if (dirIndex === 2 && rightEdge.includes(curSquare)) {
-					return true;
-				}
-
-				if (dirIndex === 3 && rightEdge.includes(curSquare)) {
-					return true;
-				}
-				//prettier-ignore
-				if (dirIndex === 3 && piece === `n` && rightEdge.includes(curSquare + 1)) {
-					return true;
-				}
-				if (dirIndex === 4 && leftEdge.includes(curSquare)) {
-					return true;
-				}
-				//prettier-ignore
-				if (dirIndex === 4 && piece === `n` && leftEdge.includes(curSquare - 1)) {
-					return true;
-				}
-
-				if (dirIndex === 5 && leftEdge.includes(newSquare)) {
-					newLegalMoves.push(`sq` + newSquare);
-					return true;
-				}
-				if (dirIndex === 5 && leftEdge.includes(curSquare)) {
-					return true;
-				}
-
-				if (dirIndex === 6 && rightEdge.includes(newSquare)) {
-					newLegalMoves.push(`sq` + newSquare);
-					return true;
-				}
-				//prettier-ignore
-				if (dirIndex === 6 && piece === `n` && rightEdge.includes(curSquare + 1)) {
-					return true;
-				}
-
-				if (dirIndex === 7 && piece === `n` && rightEdge.includes(curSquare)) {
-					return true;
-				}
-				// else if (checkingPieceSquares.includes(`sq` + newSquare)) {
-				//     newLegalMoves.push(`sq` + newSquare);
-				//     return;
-				// }
-				else if (squareHasEnemy) {
-					newLegalMoves.push(`sq` + newSquare);
-					return `end`;
-				} else {
-					newLegalMoves.push(`sq` + newSquare);
+				if (color === kingInCheck) {
+					if (squareHasEnemy === `Friendly`) return true;
+					if (piece === `k` && !everyLegalMove.includes(`sq` + newSquare)) {
+						newLegalMoves.push(`sq` + newSquare);
+						return true;
+					}
+					// North West ----------------------------------------------------------------------------
+					if (
+						(dirIndex === 2 && RIGHT_EDGE.includes(newSquare) && checkingLine.includes(newSquare)) || //prettier-ignore
+						(dirIndex === 1 && LEFT_EDGE.includes(newSquare) && checkingLine.includes(newSquare)) || //prettier-ignore
+						(dirIndex === 5 && LEFT_EDGE.includes(newSquare) && checkingLine.includes(newSquare)) ||//prettier-ignore
+						(dirIndex === 6 && RIGHT_EDGE.includes(newSquare) && checkingLine.includes(newSquare)) //prettier-ignore
+					) {
+						newLegalMoves.push(`sq` + newSquare);
+						return true;
+					}
+					if (
+						(dirIndex === 1 && LEFT_EDGE.includes(curSquare)) ||
+						(dirIndex === 5 && LEFT_EDGE.includes(curSquare)) ||
+						(dirIndex === 4 && LEFT_EDGE.includes(curSquare)) ||
+						(dirIndex === 3 && RIGHT_EDGE.includes(curSquare)) ||
+						(dirIndex === 2 && RIGHT_EDGE.includes(curSquare)) ||
+						(dirIndex === 4 && piece === `n` && LEFT_EDGE.includes(curSquare - 1)) || //prettier-ignore
+						(dirIndex === 1 && piece === `n` && LEFT_EDGE.includes(curSquare - 1)) || //prettier-ignore
+						(dirIndex === 6 && piece === `n` && RIGHT_EDGE.includes(curSquare + 1)) || //prettier-ignore
+						(dirIndex === 7 && piece === `n` && RIGHT_EDGE.includes(curSquare)) || //prettier-ignore 
+						(dirIndex === 0 && piece === `n` && LEFT_EDGE.includes(curSquare)) ||
+						(dirIndex === 3 && piece === `n` && RIGHT_EDGE.includes(curSquare + 1)) //prettier-ignore
+					) {
+						return true;
+					}
+					//prettier-ignore
+					if (squareHasEnemy && checkingLine.includes(`sq` + newSquare)) {
+						newLegalMoves.push(`sq` + newSquare);
+						return true;
+					}
+					if (piece !== `k` && checkingLine.includes(newSquare)) {
+						newLegalMoves.push(`sq` + newSquare);
+					}
 				}
 			};
-
 			// Knight ----------------------------------------------------------------------------
 			if (piece === `n`) {
-				moveCheck(pieceMoveToSquare);
+				checkingLineTemp = [];
+
+				checkingLineTemp.push(pieceMoveToSquare);
+				let lineCheck = moveCheck(pieceMoveToSquare);
+
+				if (lineCheck === `check`) {
+					checkingLine = checkingLineTemp;
+					return;
+				}
+				if (lineCheck) {
+					checkingLineTemp = [];
+					return;
+				}
 			}
 
 			// Bishop ----------------------------------------------------------------------------
 			if (piece === `b`) {
 				if (dirIndex === 1) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare + 7; newSquare <= 63; newSquare += 7) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
 
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
 					}
 				}
 				// North East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 2) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare + 9; newSquare <= 64; newSquare += 9) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
 					}
 				}
 				// South West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 5) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare - 9; newSquare >= 1; newSquare -= 9) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
 					}
 				}
 				// South East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 6) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare - 7; newSquare >= 8; newSquare -= 7) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
 					}
 				}
 			}
@@ -235,90 +264,233 @@ export const findMoves = (row, sq, col, pc) => {
 			if (piece === `r`) {
 				// North Move ------------------------------------------------------------------------------------
 				if (dirIndex === 0) {
+					checkingLineTemp = [];
 					//prettier-ignore
 					for (let newSquare = curSquare + 8; newSquare <= 64; newSquare += 8) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
 					}
 				}
 				// South Move ----------------------------------------------------------------------------
 				else if (dirIndex === 7) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare - 8; newSquare > 0; newSquare -= 8) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
 					}
 				}
 				// East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 3) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
-					for (let newSquare = curSquare + 1;	newSquare <= rightEdge[curRow - 1];	newSquare++) {
-						if(moveCheck(newSquare)) return;
+					for (let newSquare = curSquare + 1;	newSquare <= RIGHT_EDGE[curRow - 1];	newSquare++) {
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
 					}
 				}
 				// West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 4) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
-					for (let newSquare = curSquare - 1; newSquare >= leftEdge[curRow - 1]; newSquare--) {
-						if(moveCheck(newSquare)) return;
+					for (let newSquare = curSquare - 1; newSquare >= LEFT_EDGE[curRow - 1]; newSquare--) {
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
 					}
 				}
 			}
 
 			// Queen ----------------------------------------------------------------------------
 			if (piece === `q`) {
+				checkingLineTemp = [];
+
 				// North Move ------------------------------------------------------------------------------------
 				if (dirIndex === 0) {
 					//prettier-ignore
 					for (let newSquare = curSquare + 8; newSquare <= 64; newSquare += 8) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
                     }
 				}
 				// South Move ----------------------------------------------------------------------------
 				else if (dirIndex === 7) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare - 8; newSquare > 0; newSquare -= 8) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
                     }
 				}
 				// East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 3) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
-					for (let newSquare = curSquare + 1;	newSquare <= rightEdge[curRow - 1];	newSquare++) {
-						if(moveCheck(newSquare)) return;
+					for (let newSquare = curSquare + 1;	newSquare <= RIGHT_EDGE[curRow - 1]; newSquare++) {
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
                     }
 				}
 				// West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 4) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
-					for (let newSquare = curSquare - 1; newSquare >= leftEdge[curRow - 1]; newSquare--) {
-						if(moveCheck(newSquare)) return;
+					for (let newSquare = curSquare - 1; newSquare >= LEFT_EDGE[curRow - 1]; newSquare--) {
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
                     }
 				}
 				// North West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 1) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare + 7; newSquare <= 63; newSquare += 7) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
                     }
 				}
 				// North East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 2) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare + 9; newSquare <= 64; newSquare += 9) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
                     }
 				}
 				// South West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 5) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare - 9; newSquare >= 1; newSquare -= 9) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						}
                     }
 				}
 				// South East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 6) {
+					checkingLineTemp = [];
+
 					//prettier-ignore
 					for (let newSquare = curSquare - 7; newSquare >= 8; newSquare -= 7) {
-						if(moveCheck(newSquare)) return;
+						checkingLineTemp.push(newSquare)
+						let lineCheck = moveCheck(newSquare)
+						if(lineCheck === `check`){
+							checkingLine = (checkingLineTemp)
+							return;
+						}
+						if(lineCheck){
+							checkingLineTemp = []
+							return
+						} 
                     }
 				}
 			}
@@ -391,28 +563,14 @@ export const findEveryMove = (row, sq, col, pc) => {
 	let newLegalMoves = [];
 	let curRow = Number(row.slice(3));
 	let curSquare = Number(sq.slice(2));
-	let leftEdge = [1, 9, 17, 25, 33, 41, 49, 57];
-	let rightEdge = [8, 16, 24, 32, 40, 48, 56, 64];
 	let startingLegalMoves;
 
-	if (piece === `p`) {
-		startingLegalMoves = col === `b` ? [0, 0, 0, 0, 0, -7, -9, -8] : [8, 7, 9, 0, 0, 0, 0, 0]; //prettier-ignore
-	}
-	if (piece === `n`) {
-		startingLegalMoves = [15, 6, 17, 10, -10, -17, -6, -15];
-	}
-	if (piece === `b`) {
-		startingLegalMoves = [0, 9, 7, 0, 0, -9, -7, 0];
-	}
-	if (piece === `r`) {
-		startingLegalMoves = [8, 0, 0, 1, -1, 0, 0, -8];
-	}
-	if (piece === `q`) {
-		startingLegalMoves = [8, 7, 9, 1, -1, -9, -7, -8];
-	}
-	if (piece === `k`) {
-		startingLegalMoves = [8, 7, 9, 1, -1, -9, -7, -8];
-	}
+	if (piece === `n`) startingLegalMoves = KNIGHT_MOVES;
+	if (piece === `b`) startingLegalMoves = BISHOP_MOVES;
+	if (piece === `r`) startingLegalMoves = ROOK_MOVES;
+	if (piece === `q`) startingLegalMoves = QUEEN_MOVES;
+	if (piece === `k`) startingLegalMoves = KING_MOVES;
+	if (piece === `p`) startingLegalMoves = col === `b` ? PAWN_MOVES_BLACK : PAWN_MOVES_WHITE; //prettier-ignore
 
 	// Generate an array of legal squares we can go to
 	startingLegalMoves.forEach((move, dirIndex) => {
@@ -426,7 +584,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// North Move ----------------------------------------------------------------------------
 				if (dirIndex === 0) {
 					let newSquare = curSquare + startingLegalMoves[dirIndex];
-					if (leftEdge.includes(curSquare)) {
+					if (LEFT_EDGE.includes(curSquare)) {
 						return;
 					}
 					if (newSquare > 64 || newSquare < 1) {
@@ -446,7 +604,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// South Move ----------------------------------------------------------------------------
 				else if (dirIndex === 7) {
 					let newSquare = curSquare + startingLegalMoves[dirIndex];
-					if (rightEdge.includes(curSquare)) {
+					if (RIGHT_EDGE.includes(curSquare)) {
 						return;
 					}
 					if (newSquare > 64 || newSquare < 1) {
@@ -469,10 +627,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 					let newSquare = curSquare + startingLegalMoves[dirIndex];
 
 					//prettier-ignore
-					if (rightEdge.includes(curSquare + 1)) {
+					if (RIGHT_EDGE.includes(curSquare + 1)) {
                         return;
                     }
-					if (rightEdge.includes(curSquare)) {
+					if (RIGHT_EDGE.includes(curSquare)) {
 						return;
 					}
 					if (newSquare > 64 || newSquare < 1) {
@@ -494,10 +652,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 				else if (dirIndex === 4) {
 					let newSquare = curSquare + startingLegalMoves[dirIndex];
 					//prettier-ignore
-					if (leftEdge.includes(curSquare - 1)) {
+					if (LEFT_EDGE.includes(curSquare - 1)) {
 						return;
 					}
-					if (leftEdge.includes(curSquare)) {
+					if (LEFT_EDGE.includes(curSquare)) {
 						return;
 					}
 					if (newSquare > 64 || newSquare < 1) {
@@ -518,10 +676,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 				else if (dirIndex === 1) {
 					let newSquare = curSquare + startingLegalMoves[dirIndex];
 					//prettier-ignore
-					if (leftEdge.includes(curSquare - 1)) {
+					if (LEFT_EDGE.includes(curSquare - 1)) {
                         return;
                     }
-					if (leftEdge.includes(curSquare)) {
+					if (LEFT_EDGE.includes(curSquare)) {
 						return;
 					}
 					if (newSquare > 64 || newSquare < 1) {
@@ -541,7 +699,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// North East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 2) {
 					let newSquare = curSquare + startingLegalMoves[dirIndex];
-					if (rightEdge.includes(curSquare)) {
+					if (RIGHT_EDGE.includes(curSquare)) {
 						return;
 					}
 					if (newSquare > 64 || newSquare < 1) {
@@ -562,7 +720,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// South West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 5) {
 					let newSquare = curSquare + startingLegalMoves[dirIndex];
-					if (leftEdge.includes(curSquare)) {
+					if (LEFT_EDGE.includes(curSquare)) {
 						return;
 					}
 					if (newSquare > 64 || newSquare < 1) {
@@ -584,10 +742,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 				else if (dirIndex === 6) {
 					let newSquare = curSquare + startingLegalMoves[dirIndex];
 					//prettier-ignore
-					if (rightEdge.includes(curSquare + 1)) {
+					if (RIGHT_EDGE.includes(curSquare + 1)) {
                     return;
                 }
-					if (rightEdge.includes(curSquare)) {
+					if (RIGHT_EDGE.includes(curSquare)) {
 						return;
 					}
 					if (newSquare > 64 || newSquare < 1) {
@@ -613,10 +771,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 					//prettier-ignore
 					for (let newSquare = curSquare + 7; newSquare <= 63; newSquare += 7) {
 
-                        if (leftEdge.includes(curSquare)) {
+                        if (LEFT_EDGE.includes(curSquare)) {
                             return;
                         } 
-                        else if (leftEdge.includes(newSquare)){
+                        else if (LEFT_EDGE.includes(newSquare)){
                             newLegalMoves.push(`sq` + newSquare);
                             return;
                         }
@@ -630,10 +788,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 					//prettier-ignore
 					for (let newSquare = curSquare + 9; newSquare <= 64; newSquare += 9) {
 
-                        if (rightEdge.includes(curSquare)) {
+                        if (RIGHT_EDGE.includes(curSquare)) {
                             return;
                         } 
-                        else if (rightEdge.includes(newSquare)){
+                        else if (RIGHT_EDGE.includes(newSquare)){
                             newLegalMoves.push(`sq` + newSquare);
                             return;
                         }
@@ -646,10 +804,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 				else if (dirIndex === 5) {
 					//prettier-ignore
 					for (let newSquare = curSquare - 9; newSquare >= 1; newSquare -= 9) {
-                        if (leftEdge.includes(curSquare)) {
+                        if (LEFT_EDGE.includes(curSquare)) {
                             return;
                         } 
-                        else if (leftEdge.includes(newSquare)){
+                        else if (LEFT_EDGE.includes(newSquare)){
                             newLegalMoves.push(`sq` + newSquare);
                             return;
                         }
@@ -663,10 +821,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 					//prettier-ignore
 					for (let newSquare = curSquare - 7; newSquare >= 8; newSquare -= 7) {
 
-                        if (rightEdge.includes(curSquare)) {
+                        if (RIGHT_EDGE.includes(curSquare)) {
                             return;
                         } 
-                        else if (rightEdge.includes(newSquare)){
+                        else if (RIGHT_EDGE.includes(newSquare)){
                             newLegalMoves.push(`sq` + newSquare);
                             return;
                         }
@@ -696,8 +854,8 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 3) {
 					//prettier-ignore
-					for (let newSquare = curSquare + 1;	newSquare <= rightEdge[curRow - 1];	newSquare++) {
-                        if (rightEdge.includes(curSquare)) {
+					for (let newSquare = curSquare + 1;	newSquare <= RIGHT_EDGE[curRow - 1];	newSquare++) {
+                        if (RIGHT_EDGE.includes(curSquare)) {
                             return;
                         } 
                         else {
@@ -708,8 +866,8 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 4) {
 					//prettier-ignore
-					for (let newSquare = curSquare - 1; newSquare >= leftEdge[curRow - 1]; newSquare--) {                        
-                        if (leftEdge.includes(curSquare)) {
+					for (let newSquare = curSquare - 1; newSquare >= LEFT_EDGE[curRow - 1]; newSquare--) {                        
+                        if (LEFT_EDGE.includes(curSquare)) {
                             return;
                         } 
                         else {
@@ -738,8 +896,8 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 3) {
 					//prettier-ignore
-					for (let newSquare = curSquare + 1;	newSquare <= rightEdge[curRow - 1];	newSquare++) {
-                        if (rightEdge.includes(curSquare)) {
+					for (let newSquare = curSquare + 1;	newSquare <= RIGHT_EDGE[curRow - 1];	newSquare++) {
+                        if (RIGHT_EDGE.includes(curSquare)) {
                             return;
                         } 
                         else {
@@ -750,8 +908,8 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 4) {
 					//prettier-ignore
-					for (let newSquare = curSquare - 1; newSquare >= leftEdge[curRow - 1]; newSquare--) {                        
-                        if (leftEdge.includes(curSquare)) {
+					for (let newSquare = curSquare - 1; newSquare >= LEFT_EDGE[curRow - 1]; newSquare--) {                        
+                        if (LEFT_EDGE.includes(curSquare)) {
                             return;
                         } 
                         else {
@@ -763,10 +921,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 				else if (dirIndex === 1) {
 					//prettier-ignore
 					for (let newSquare = curSquare + 7; newSquare <= 63; newSquare += 7) {
-                        if (leftEdge.includes(curSquare)) {
+                        if (LEFT_EDGE.includes(curSquare)) {
                             return;
                         } 
-                        else if (leftEdge.includes(newSquare)){
+                        else if (LEFT_EDGE.includes(newSquare)){
                             newLegalMoves.push(`sq` + newSquare);
                             return;
                         }
@@ -780,10 +938,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 					//prettier-ignore
 					for (let newSquare = curSquare + 9; newSquare <= 64; newSquare += 9) {
 
-                        if (rightEdge.includes(curSquare)) {
+                        if (RIGHT_EDGE.includes(curSquare)) {
                             return;
                         } 
-                        else if (rightEdge.includes(newSquare)){
+                        else if (RIGHT_EDGE.includes(newSquare)){
                             newLegalMoves.push(`sq` + newSquare);
                             return;
                         }
@@ -796,10 +954,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 				else if (dirIndex === 5) {
 					//prettier-ignore
 					for (let newSquare = curSquare - 9; newSquare >= 1; newSquare -= 9) {
-                        if (leftEdge.includes(curSquare)) {
+                        if (LEFT_EDGE.includes(curSquare)) {
                             return;
                         } 
-                        else if (leftEdge.includes(newSquare)){
+                        else if (LEFT_EDGE.includes(newSquare)){
                             newLegalMoves.push(`sq` + newSquare);
                             return;
                         }
@@ -813,10 +971,10 @@ export const findEveryMove = (row, sq, col, pc) => {
 					//prettier-ignore
 					for (let newSquare = curSquare - 7; newSquare >= 8; newSquare -= 7) {
 
-                        if (rightEdge.includes(curSquare)) {
+                        if (RIGHT_EDGE.includes(curSquare)) {
                             return;
                         } 
-                        else if (rightEdge.includes(newSquare)){
+                        else if (RIGHT_EDGE.includes(newSquare)){
                             newLegalMoves.push(`sq` + newSquare);
                             return;
                         }
@@ -842,7 +1000,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// East move ----------------------------------------------------------------------------
 				else if (dirIndex === 3) {
 					//prettier-ignore
-					if (rightEdge.includes(curSquare)) {
+					if (RIGHT_EDGE.includes(curSquare)) {
 						return;
 					} else {
 						newLegalMoves.push(`sq` + pieceMoveToSquare);
@@ -851,7 +1009,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// West move ----------------------------------------------------------------------------
 				else if (dirIndex === 4) {
 					//prettier-ignore
-					if (leftEdge.includes(curSquare)) {
+					if (LEFT_EDGE.includes(curSquare)) {
 						return;
 					} else {
 						newLegalMoves.push(`sq` + pieceMoveToSquare);
@@ -860,7 +1018,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// North West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 1) {
 					//prettier-ignore
-					if (leftEdge.includes(curSquare)) {
+					if (LEFT_EDGE.includes(curSquare)) {
 						return;
 					} else {
 						newLegalMoves.push(`sq` + pieceMoveToSquare);
@@ -869,7 +1027,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// North East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 2) {
 					//prettier-ignore
-					if (rightEdge.includes(curSquare)) {
+					if (RIGHT_EDGE.includes(curSquare)) {
 						return;
 					} else {
 						newLegalMoves.push(`sq` + pieceMoveToSquare);
@@ -878,7 +1036,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// South West Move ----------------------------------------------------------------------------
 				else if (dirIndex === 5) {
 					//prettier-ignore
-					if (leftEdge.includes(curSquare)) {
+					if (LEFT_EDGE.includes(curSquare)) {
 						return;
 					} else {
 						newLegalMoves.push(`sq` + pieceMoveToSquare);
@@ -887,7 +1045,7 @@ export const findEveryMove = (row, sq, col, pc) => {
 				// South East Move ----------------------------------------------------------------------------
 				else if (dirIndex === 6) {
 					//prettier-ignore
-					if (rightEdge.includes(curSquare)) {
+					if (RIGHT_EDGE.includes(curSquare)) {
 						return;
 					} else {
 						newLegalMoves.push(`sq` + pieceMoveToSquare);

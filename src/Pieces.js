@@ -23,19 +23,19 @@ class Piece extends React.Component {
 			draggable="true"
 			onClick={(e) => {
 				removeSquareColors();
-				let row = e.target.parentNode.dataset.row;
-				let sq = e.target.parentNode.id;
-				let color = e.target.className.slice(0, 1);
-				// this.props.checkForCheck(checkForCheck());
+				let row   = e.target.parentNode.dataset.row; //prettier-ignore
+				let sq    = e.target.parentNode.id; //prettier-ignore
+				let color = e.target.className.slice(0, 1); //prettier-ignore
+				this.props.checkForCheck(checkForCheck());
 				// checkEveryMove(color);
 				this.props.legalMoves(this.findMoves(row, sq, color));
 				e.target.parentNode.classList.add(`highlight`);
 			}}
 			onDragStart={(e) => {
 				removeSquareColors();
-				let row = e.target.parentNode.dataset.row;
-				let sq = e.target.parentNode.id;
-				let color = e.target.className.slice(0, 1);
+				let row   = e.target.parentNode.dataset.row; //prettier-ignore
+				let sq    = e.target.parentNode.id; //prettier-ignore
+				let color = e.target.className.slice(0, 1); //prettier-ignore
 
 				this.handleDrag(e);
 				this.props.prevPosition([row, sq]);

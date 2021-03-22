@@ -10,7 +10,8 @@ class JoeyChess extends React.Component {
 		super(props);
 		this.state = {
 			// boardPositionFEN: `r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 w KQkq - 0 1`,
-			boardPositionFEN: `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`,
+			// boardPositionFEN: `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`,
+			boardPositionFEN: `rnbqkbnr/pp3ppp/2p5/3pp2Q/3P4/4P3/PPP2PPP/RNB1KBNR w KQkq - 0 4`,
 			boardState: null,
 			newSquare: [],
 			curSquare: null,
@@ -118,14 +119,12 @@ class JoeyChess extends React.Component {
 	};
 
 	handleDrop = (e) => {
-		// TODO: stop turn from changing if piece is dropped on the same square it started
 		// TODO: illegal moves
 		// TODO: Check
 		// TODO: EN-PASSANT
 		// TODO: CASTLE
 		// TODO: PROMOTING
 		// TODO: CHECKMATE
-		// TODO: DO NOTHING IF DROP ON START SQUARE
 
 		e.preventDefault();
 		if (!e.dataTransfer.getData('piece')) return;
