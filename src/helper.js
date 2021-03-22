@@ -313,7 +313,7 @@ export const squareHasPiece = (squareNum, color) => {
     }
 	//prettier-ignore
 	if (document.getElementById(`sq` + squareNum).innerHTML.includes(color===`w` ? `black` : `white`)) {
-        return (`sq` + squareNum);
+        return (`enemy`);
     }
 	//prettier-ignore
 	if (document.getElementById(`sq` + squareNum).innerHTML.includes(color===`w` ? `white` : `black`)) {
