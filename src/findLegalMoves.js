@@ -8,7 +8,6 @@ let checkingLine                  = []; //prettier-ignore
 let checkingLineTemp              = []; //prettier-ignore
 let allCheckingLine               = []; //prettier-ignore
 let allCheckingLineTemp           = []; //prettier-ignore
-let checkBlockingPiecesTemp       = []; //prettier-ignore
 let everyLegalMove                = []; //prettier-ignore
 let checkBlockingPieces           = []; //prettier-ignore
 let checkBlockingPiecesAttacker   = []; //prettier-ignore
@@ -59,9 +58,6 @@ export const checkForCheck = (color) => {
 
 	lastTurn       = turn; //prettier-ignore
 	everyLegalMove = everyLegalMoveTemp; //prettier-ignore
-	everyLegalMove.forEach((square) => {
-		document.getElementById(square).classList.add(`runAway`);
-	});
 	return checkState;
 };
 
@@ -93,7 +89,6 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 
 	//  ----------------------------------------------------------------------------
 	// TODO: EN-PASSANT
-	// TODO: Cant Castle through check
 	//  ----------------------------------------------------------------------------
 
 	// Generate an array of legal squares we can go to
@@ -500,7 +495,6 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 			};
 
 			// Bishop Queen Rook ----------------------------------------------------------------------------
-			// TODO: ONLY ADD THE SQUARE IF THERES LESS THAN 1 IN THE LINE
 			//prettier-ignore
 			if (piece === `b` || piece === `r` || piece === `q`) {
 				// Loop over our enemies squares

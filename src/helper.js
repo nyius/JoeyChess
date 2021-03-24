@@ -151,14 +151,14 @@ export const parseFEN = (currentBoard, boardPositionFEN) => {
 };
 
 // Create a FEN position based on the current board ----------------------------------------------------------------------------
-export const generateFEN = (newBoardPosition, currentState) => {
+//prettier-ignore
+export const generateFEN = (newBoardPosition, currentState, enPassant = false) => {
 	let startingBoard    = newBoardPosition; //prettier-ignore
 	let columnCount      = 0; //prettier-ignore
 	let newFEN           = []; //prettier-ignore
 	let newState         = [...currentState]; //prettier-ignore
 	let whoseTurn        = currentState[0]; //prettier-ignore
 	let currentTurnNum   = Number(currentState[currentState.length - 1]); //prettier-ignore
-
 	// Loop over the board and create the FEN
 	for (let j = BOARD_HEIGHT; j > 0; j--) {
 		let whiteSpace = 0;
@@ -264,15 +264,33 @@ export const generateFEN = (newBoardPosition, currentState) => {
 		whoseTurn = 'w';
 		currentTurnNum++;
 	}
-
+	newState[0] = whoseTurn;
 	let whiteQueenRook = document.getElementById(`sq1`).innerHTML;
 	let whiteKingRook = document.getElementById(`sq8`).innerHTML;
 	let blackQueenRook = document.getElementById(`sq57`).innerHTML;
 	let blackKingRook = document.getElementById(`sq64`).innerHTML;
 	let whiteKing = document.getElementById(`sq5`).innerHTML;
 	let blackKing = document.getElementById(`sq61`).innerHTML;
+	let backwardsState = [...newState];
 
-	newState[0] = whoseTurn;
+	backwardsState.reverse();
+	if (enPassant) {
+		if (backwardsState[4] !== `-`){
+			backwardsState[4] = enPassant
+			backwardsState.splice(5,1)
+			backwardsState.reverse()
+			newState = [...backwardsState]
+		};
+		newState[newState.lastIndexOf(`-`)] = enPassant;
+	} else if(!enPassant){
+		if (backwardsState[4] !== `-`){
+			backwardsState[4] = `-`
+			backwardsState.splice(5,1)
+			backwardsState.reverse()
+			newState = [...backwardsState]
+		};
+	}
+
 	newState[newState.length - 1] = currentTurnNum;
 	if (!whiteKing.includes(`wk`)) {
 		newState[newState.indexOf(`Q`)] = ``;
@@ -400,4 +418,76 @@ export const removeSquareColors = (e) => {
 	document.querySelectorAll(`.legalMoves`)?.forEach(el => el.classList.remove(`legalMoves`)) //prettier-ignore
 	document.querySelectorAll(`.highlight`)?.forEach(el  => el.classList.remove(`highlight`)) //prettier-ignore
 	document.querySelectorAll(`.runAway`)?.forEach(el    => el.classList.remove(`runAway`)) //prettier-ignore
+};
+
+/**
+ * Takes in a number between 1 and 64. returns the board notation for it (eg. 1 = a1, 34 = b5)
+ * @param {Number} num Number between 1 and 64
+ * @returns
+ */
+export const boardNumToChessNotation = (num) => {
+	if (num === 1)  return `a1`; //prettier-ignore
+	if (num === 9)  return `a2`; //prettier-ignore
+	if (num === 17) return `a3`; //prettier-ignore
+	if (num === 25) return `a4`; //prettier-ignore
+	if (num === 33) return `a5`; //prettier-ignore
+	if (num === 41) return `a6`; //prettier-ignore
+	if (num === 49) return `a7`; //prettier-ignore
+	if (num === 57) return `a8`; //prettier-ignore
+	if (num === 2)  return `b1`; //prettier-ignore
+	if (num === 10) return `b2`; //prettier-ignore
+	if (num === 18) return `b3`; //prettier-ignore
+	if (num === 26) return `b4`; //prettier-ignore
+	if (num === 34) return `b5`; //prettier-ignore
+	if (num === 42) return `b6`; //prettier-ignore
+	if (num === 50) return `b7`; //prettier-ignore
+	if (num === 58) return `b8`; //prettier-ignore
+	if (num === 3)  return `c1`; //prettier-ignore
+	if (num === 11) return `c2`; //prettier-ignore
+	if (num === 19) return `c3`; //prettier-ignore
+	if (num === 27) return `c4`; //prettier-ignore
+	if (num === 35) return `c5`; //prettier-ignore
+	if (num === 43) return `c6`; //prettier-ignore
+	if (num === 51) return `c7`; //prettier-ignore
+	if (num === 59) return `c8`; //prettier-ignore
+	if (num === 4)  return `d1`; //prettier-ignore
+	if (num === 12) return `d2`; //prettier-ignore
+	if (num === 20) return `d3`; //prettier-ignore
+	if (num === 28) return `d4`; //prettier-ignore
+	if (num === 36) return `d5`; //prettier-ignore
+	if (num === 44) return `d6`; //prettier-ignore
+	if (num === 52) return `d7`; //prettier-ignore
+	if (num === 60) return `d8`; //prettier-ignore
+	if (num === 5)  return `e1`; //prettier-ignore
+	if (num === 13) return `e2`; //prettier-ignore
+	if (num === 21) return `e3`; //prettier-ignore
+	if (num === 29) return `e4`; //prettier-ignore
+	if (num === 37) return `e5`; //prettier-ignore
+	if (num === 45) return `e6`; //prettier-ignore
+	if (num === 53) return `e7`; //prettier-ignore
+	if (num === 61) return `e8`; //prettier-ignore
+	if (num === 6)  return `f1`; //prettier-ignore
+	if (num === 14) return `f2`; //prettier-ignore
+	if (num === 22) return `f3`; //prettier-ignore
+	if (num === 30) return `f4`; //prettier-ignore
+	if (num === 38) return `f5`; //prettier-ignore
+	if (num === 46) return `f6`; //prettier-ignore
+	if (num === 54) return `f7`; //prettier-ignore
+	if (num === 62) return `f8`; //prettier-ignore
+	if (num === 7)  return `g1`; //prettier-ignore
+	if (num === 15) return `g2`; //prettier-ignore
+	if (num === 23) return `g3`; //prettier-ignore
+	if (num === 31) return `g4`; //prettier-ignore
+	if (num === 39) return `g5`; //prettier-ignore
+	if (num === 47) return `g6`; //prettier-ignore
+	if (num === 55) return `g7`; //prettier-ignore
+	if (num === 63) return `g8`; //prettier-ignore
+	if (num === 8)  return `h1`; //prettier-ignore
+	if (num === 16) return `h2`; //prettier-ignore
+	if (num === 24) return `h3`; //prettier-ignore
+	if (num === 32) return `h4`; //prettier-ignore
+	if (num === 40) return `h5`; //prettier-ignore
+	if (num === 48) return `h6`; //prettier-ignore
+	if (num === 56) return `h7`; //prettier-ignore
+	if (num === 64) return `h8`; //prettier-ignore
 };

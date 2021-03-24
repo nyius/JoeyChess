@@ -3,7 +3,7 @@ import './scss/index.scss';
 import { BOARD_HEIGHT, BOARD_WIDTH } from './config';
 // eslint-disable-next-line
 //prettier-ignore
-import { parseFEN, generateFEN, pieceCheck, removeSquareColors } from './helper';
+import { parseFEN, generateFEN, pieceCheck, removeSquareColors, boardNumToChessNotation } from './helper';
 
 class JoeyChess extends React.Component {
 	constructor(props) {
@@ -11,12 +11,15 @@ class JoeyChess extends React.Component {
 		this.state = {
 			// boardPositionFEN: `r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 w KQkq - 0 1`,
 			// boardPositionFEN: `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`,
-			boardPositionFEN: `rnbqkbnr/pp3ppp/2p5/3pp2Q/3P4/4P3/PPP2PPP/RNB1KBNR w KQkq - 0 4`,
+			// boardPositionFEN: `rnbqkbnr/pp3ppp/2p5/3pp2Q/3P4/4P3/PPP2PPP/RNB1KBNR w KQkq - 0 4`,
+			boardPositionFEN: `rnbqkbnr/1p3ppp/p1p5/3ppP1Q/3P4/4P3/PPP3PP/RNB1KBNR b KQkq - 0 5`,
+			boardPositionHistory: null,
 			boardState: null,
 			newSquare: [],
 			curSquare: null,
 			whoseTurn: `w`,
 			turnNum: 1,
+			halfTurn: 0,
 			board: {
 				row1: {
 					sq1: null,
@@ -126,6 +129,7 @@ class JoeyChess extends React.Component {
 		const turn = Object.values({ ...this.state.boardState });
 		const whoseTurn = turn[0];
 		const legalMoves = newPiece[2];
+		let enPassant;
 
 		// Check if its the right players move. If not, do absolutely nothing
 		if (newPiece[0].props.piece[0] === whoseTurn) {
@@ -140,6 +144,18 @@ class JoeyChess extends React.Component {
 			e.target.id ? e.target.classList.add(`highlight`):e.target.parentNode.classList.add(`highlight`); //prettier-ignore
 			document.querySelector('.highlight2')?.classList.remove(`highlight2`);
 			document.getElementById(newPiece[1][1]).classList.add('highlight2');
+			//  --------------------------------------------------------------------------------------------------------------------------------------
+
+			// handle en Passant ---------------------------------------------------------------------------------------------------------------------
+			//prettier-ignore
+			if(droppedPiece.includes(`bp`) && newPiece[1][0] === `row7` && this.state.newSquare[0] === `row5`) {
+				enPassant = boardNumToChessNotation(Number(this.state.newSquare[1].slice(-2))+8);
+
+			}
+			//prettier-ignore
+			if(droppedPiece.includes(`wp`) && newPiece[1][0] === `row2` && this.state.newSquare[0] === `row4`) {
+				enPassant = boardNumToChessNotation(Number(this.state.newSquare[1].slice(-2))-8);
+			}
 			//  --------------------------------------------------------------------------------------------------------------------------------------
 
 			// Handle Castling Movements -------------------------------------------------------------------------------------------------------------
@@ -167,12 +183,13 @@ class JoeyChess extends React.Component {
 				newBoardState[`row8`][`sq57`] = ``
 				newBoardState[`row8`][`sq60`] = newRook[0]
 			}
+
 			//  ----------------------------------------------------------------------------------------------------------------------------------------
 
 			// Remove the piece from the old square, move it to the new square, and generate a new FEN + parse it and save it to the state
 			newBoardState[newPiece[1][0]][newPiece[1][1]] = ''; // set the square that the piece came from to blank
 			newBoardState[this.state.newSquare[0]][this.state.newSquare[1]] = newPiece[0]; //prettier-ignore
-			newFEN = generateFEN(newBoardState, this.state.boardState); // generate a new FEN based on the board
+			newFEN = generateFEN(newBoardState, this.state.boardState, enPassant); // generate a new FEN based on the board
 			parsedFEN = parseFEN({ ...this.state.board }, [...newFEN]); // parse the new FEN into the new position
 			//  --------------------------------------------------------------------------------------------------------------------------------------
 
