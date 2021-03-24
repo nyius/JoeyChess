@@ -1,4 +1,4 @@
-import { checkForEnemy } from './helper';
+import { checkForEnemy, chessNotationToBoardNum } from './helper';
 import {LEFT_EDGE, RIGHT_EDGE, TOP_EDGE, BOTTOM_EDGE, KNIGHT_MOVES, BISHOP_MOVES, ROOK_MOVES, QUEEN_MOVES, KING_MOVES, PAWN_MOVES_WHITE, PAWN_MOVES_BLACK, NORTH, NORTH_WEST, NORTH_EAST, EAST, WEST, SOUTH_WEST, SOUTH_EAST, SOUTH } from './config' //prettier-ignore
 // [N, NW, NE, E, W, SW, SE, S]
 
@@ -58,6 +58,9 @@ export const checkForCheck = (color) => {
 
 	lastTurn       = turn; //prettier-ignore
 	everyLegalMove = everyLegalMoveTemp; //prettier-ignore
+	// everyLegalMove.forEach((square) => {
+	// 	document.getElementById(square).classList.add(`runAway`);
+	// });
 	return checkState;
 };
 
@@ -72,6 +75,8 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 	let newLegalMoves     = []; //prettier-ignore
 	let curRow            = Number(row.slice(3)); //prettier-ignore
 	let curSquare         = Number(sq.slice(2)); //prettier-ignore
+	let boardState        = getBoardState?.split(` `); //prettier-ignore
+	let enPassant         = boardState ? chessNotationToBoardNum(boardState[2]) : false; //prettier-ignore
 
 	if (piece === `p`) startingLegalMoves = color === `b` ? PAWN_MOVES_BLACK : PAWN_MOVES_WHITE; //prettier-ignore
 	if (piece === `n`) startingLegalMoves = KNIGHT_MOVES;
@@ -88,7 +93,7 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 	});
 
 	//  ----------------------------------------------------------------------------
-	// TODO: EN-PASSANT
+	// TODO: KING CAN'T TAKE PIECES IF THEYRE PROTECTED
 	//  ----------------------------------------------------------------------------
 
 	// Generate an array of legal squares we can go to
@@ -139,6 +144,10 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 							newLegalMoves.push(`sq` + newSquare);
 						}
 						return;
+					}
+					if (piece === `p` && enPassant === newSquare) {
+						//prettier-ignore
+						newLegalMoves.push(`sq` + newSquare);
 					}
 					if (
 						(dirIndex === NORTH_WEST && LEFT_EDGE.includes(newSquare)  && piece !== `p`) || //prettier-ignore
@@ -212,6 +221,7 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 				}
 
 				if (color === kingInCheck) {
+					if (piece === `k`) console.log(piece, color, curSquare);
 					if (squareHasEnemy === `Friendly`) return true;
 					if (piece === `k` && !everyLegalMove.includes(`sq` + newSquare)) {
 						newLegalMoves.push(`sq` + newSquare);

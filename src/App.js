@@ -13,6 +13,8 @@ class JoeyChess extends React.Component {
 			// boardPositionFEN: `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`,
 			// boardPositionFEN: `rnbqkbnr/pp3ppp/2p5/3pp2Q/3P4/4P3/PPP2PPP/RNB1KBNR w KQkq - 0 4`,
 			boardPositionFEN: `rnbqkbnr/1p3ppp/p1p5/3ppP1Q/3P4/4P3/PPP3PP/RNB1KBNR b KQkq - 0 5`,
+			boardPositionFEN: `rnbqkbnr/1p3ppp/p2P4/4pP1Q/2B1p3/8/PPP3PP/RNB1K1NR b KQk - 0 9`,
+			// boardPositionFEN: `rnbqkbnr/1p3ppp/p1p5/3ppP1Q/3P4/4P3/PPP3PP/RNB1KBNR b KQkq - 0 9`,
 			boardPositionHistory: null,
 			boardState: null,
 			newSquare: [],
@@ -183,13 +185,18 @@ class JoeyChess extends React.Component {
 				newBoardState[`row8`][`sq57`] = ``
 				newBoardState[`row8`][`sq60`] = newRook[0]
 			}
-
 			//  ----------------------------------------------------------------------------------------------------------------------------------------
+
+			//TODO: CHECKMATE
+			//TODO: GAME HISTORY
+			//TODO: CHESS NOTATION TURN LIST WITH CLICK-THROUGH CAPABILITY
+			//TODO: BASIC RANDOM MOVE AI
 
 			// Remove the piece from the old square, move it to the new square, and generate a new FEN + parse it and save it to the state
 			newBoardState[newPiece[1][0]][newPiece[1][1]] = ''; // set the square that the piece came from to blank
 			newBoardState[this.state.newSquare[0]][this.state.newSquare[1]] = newPiece[0]; //prettier-ignore
 			newFEN = generateFEN(newBoardState, this.state.boardState, enPassant); // generate a new FEN based on the board
+			console.log(newFEN);
 			parsedFEN = parseFEN({ ...this.state.board }, [...newFEN]); // parse the new FEN into the new position
 			//  --------------------------------------------------------------------------------------------------------------------------------------
 
@@ -272,9 +279,12 @@ class JoeyChess extends React.Component {
 	};
 
 	render() {
-		const turn = Object.values({ ...this.state.boardState });
-		const whoseTurn = turn[0];
-		const turnNum = turn[turn.length - 1];
+		const turn = this.state.boardState?.split(` `);
+		let whoseTurn, turnNum;
+		if (turn) {
+			whoseTurn = turn[0];
+			turnNum = turn[4];
+		}
 		return (
 			<div className="board_container">
 				<this.chessBoard />

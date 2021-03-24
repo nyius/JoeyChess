@@ -156,9 +156,15 @@ export const generateFEN = (newBoardPosition, currentState, enPassant = false) =
 	let startingBoard    = newBoardPosition; //prettier-ignore
 	let columnCount      = 0; //prettier-ignore
 	let newFEN           = []; //prettier-ignore
-	let newState         = [...currentState]; //prettier-ignore
+	let newState     = currentState.split(` `); //prettier-ignore
 	let whoseTurn        = currentState[0]; //prettier-ignore
-	let currentTurnNum   = Number(currentState[currentState.length - 1]); //prettier-ignore
+	let currentTurnNum   = Number(newState[4]); //prettier-ignore
+	let whiteQueenRook   = document.getElementById(`sq1`).innerHTML;//prettier-ignore
+	let whiteKingRook    = document.getElementById(`sq8`).innerHTML;//prettier-ignore
+	let blackQueenRook   = document.getElementById(`sq57`).innerHTML;//prettier-ignore
+	let blackKingRook    = document.getElementById(`sq64`).innerHTML;//prettier-ignore
+	let whiteKing        = document.getElementById(`sq5`).innerHTML;//prettier-ignore
+	let blackKing        = document.getElementById(`sq61`).innerHTML;//prettier-ignore
 	// Loop over the board and create the FEN
 	for (let j = BOARD_HEIGHT; j > 0; j--) {
 		let whiteSpace = 0;
@@ -257,57 +263,59 @@ export const generateFEN = (newBoardPosition, currentState, enPassant = false) =
 		}
 	}
 
-	// Update whose turn it is and the current turn count
+	// Handles whose turn and turn count ----------------------------------------------------------------------------------------------------------------------------------------------------
 	if (whoseTurn === 'w') {
 		whoseTurn = 'b';
 	} else {
 		whoseTurn = 'w';
 		currentTurnNum++;
 	}
+
 	newState[0] = whoseTurn;
-	let whiteQueenRook = document.getElementById(`sq1`).innerHTML;
-	let whiteKingRook = document.getElementById(`sq8`).innerHTML;
-	let blackQueenRook = document.getElementById(`sq57`).innerHTML;
-	let blackKingRook = document.getElementById(`sq64`).innerHTML;
-	let whiteKing = document.getElementById(`sq5`).innerHTML;
-	let blackKing = document.getElementById(`sq61`).innerHTML;
-	let backwardsState = [...newState];
+	//  ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-	backwardsState.reverse();
+
+	// Handles EnPassant ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 	if (enPassant) {
-		if (backwardsState[4] !== `-`){
-			backwardsState[4] = enPassant
-			backwardsState.splice(5,1)
-			backwardsState.reverse()
-			newState = [...backwardsState]
+		if (newState[2] !== `-`){
+			newState[2] = enPassant
 		};
-		newState[newState.lastIndexOf(`-`)] = enPassant;
+		newState[2] = enPassant;
 	} else if(!enPassant){
-		if (backwardsState[4] !== `-`){
-			backwardsState[4] = `-`
-			backwardsState.splice(5,1)
-			backwardsState.reverse()
-			newState = [...backwardsState]
-		};
+		if (newState[2] !== `-`){
+			newState[2] = `-`
+		}
 	}
 
-	newState[newState.length - 1] = currentTurnNum;
+	//  ----------------------------------------------------------------------------------------------------------------------------------------------------
+	 let castleTemp = [...newState[1]]
+
+	 newState[4] = currentTurnNum;
+	
+	 // handles Castling ----------------------------------------------------------------------------------------------------------------------------------------------------
 	if (!whiteKing.includes(`wk`)) {
-		newState[newState.indexOf(`Q`)] = ``;
-		newState[newState.indexOf(`K`)] = ``;
+		castleTemp[castleTemp.indexOf(`Q`)] = ``;
+		castleTemp[castleTemp.indexOf(`K`)] = ``;
 	}
+
 	if (!blackKing.includes(`bk`)) {
-		newState[newState.indexOf(`q`)] = ``;
-		newState[newState.indexOf(`k`)] = ``;
+		castleTemp[castleTemp.indexOf(`q`)] = ``;
+		castleTemp[castleTemp.indexOf(`k`)] = ``;
 	}
-	if (!whiteQueenRook.includes(`wr`)) newState[newState.indexOf(`Q`)] = ``;
-	if (!whiteKingRook.includes(`wr`)) newState[newState.indexOf(`K`)] = ``;
-	if (!blackQueenRook.includes(`br`)) newState[newState.indexOf(`q`)] = ``;
-	if (!blackKingRook.includes(`br`)) newState[newState.indexOf(`k`)] = ``;
-	if (!newState.includes(`Q`) && !newState.includes(`K`) && !newState.includes(`q`) && !newState.includes(`k`)) newState[2] = `-`; //prettier-ignore
+
+	if (!whiteQueenRook.includes(`wr`)) castleTemp[castleTemp.indexOf(`Q`)] = ``; //prettier-ignore
+	if (!whiteKingRook.includes(`wr`))  castleTemp[castleTemp.indexOf(`K`)] = ``; //prettier-ignore
+	if (!blackQueenRook.includes(`br`)) castleTemp[castleTemp.indexOf(`q`)] = ``; //prettier-ignore
+	if (!blackKingRook.includes(`br`))  castleTemp[castleTemp.indexOf(`k`)] = ``; //prettier-ignore
+	if (!castleTemp.includes(`Q`) &&    !castleTemp.includes(`K`) && !castleTemp.includes(`q`) && !castleTemp.includes(`k`) && !castleTemp.includes(`-`)) castleTemp[2] = `-`; //prettier-ignore
+	
+	newState[1] = castleTemp.join(``)
+	//  ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 	// Join everything together now that we're done looping
 	newFEN = [newFEN.join(``)]; // join all of the letters together from the abvove loop
-	newFEN.push(newState.join(``)); // push the current game state to the array
+	newFEN.push(newState.join(` `)); // push the current game state to the array
 	newFEN = newFEN.join(` `); // join them togther with a space
 	return newFEN;
 };
@@ -490,4 +498,76 @@ export const boardNumToChessNotation = (num) => {
 	if (num === 48) return `h6`; //prettier-ignore
 	if (num === 56) return `h7`; //prettier-ignore
 	if (num === 64) return `h8`; //prettier-ignore
+};
+
+/**
+ * Takes in chess notation (a1, b6, etc) and returns its numerical value
+ * @param {String} str board notation (a6, b1, etc)
+ * @returns
+ */
+export const chessNotationToBoardNum = (str) => {
+	if (str === `a1`) return 1; //prettier-ignore
+	if (str === `a2`) return 9; //prettier-ignore
+	if (str === `a3`) return 17; //prettier-ignore
+	if (str === `a4`) return 25; //prettier-ignore
+	if (str === `a5`) return 33; //prettier-ignore
+	if (str === `a6`) return 41; //prettier-ignore
+	if (str === `a7`) return 49; //prettier-ignore
+	if (str === `a8`) return 57; //prettier-ignore
+	if (str === `b1`) return 2; //prettier-ignore
+	if (str === `b2`) return 10; //prettier-ignore
+	if (str === `b3`) return 18; //prettier-ignore
+	if (str === `b4`) return 26; //prettier-ignore
+	if (str === `b5`) return 34; //prettier-ignore
+	if (str === `b6`) return 42; //prettier-ignore
+	if (str === `b7`) return 50; //prettier-ignore
+	if (str === `b8`) return 58; //prettier-ignore
+	if (str === `c1`) return 3; //prettier-ignore
+	if (str === `c2`) return 11; //prettier-ignore
+	if (str === `c3`) return 19; //prettier-ignore
+	if (str === `c4`) return 27; //prettier-ignore
+	if (str === `c5`) return 35; //prettier-ignore
+	if (str === `c6`) return 43; //prettier-ignore
+	if (str === `c7`) return 51; //prettier-ignore
+	if (str === `c8`) return 59; //prettier-ignore
+	if (str === `d1`) return 4; //prettier-ignore
+	if (str === `d2`) return 12; //prettier-ignore
+	if (str === `d3`) return 20; //prettier-ignore
+	if (str === `d4`) return 28; //prettier-ignore
+	if (str === `d5`) return 36; //prettier-ignore
+	if (str === `d6`) return 44; //prettier-ignore
+	if (str === `d7`) return 52; //prettier-ignore
+	if (str === `d8`) return 60; //prettier-ignore
+	if (str === `e1`) return 5; //prettier-ignore
+	if (str === `e2`) return 13; //prettier-ignore
+	if (str === `e3`) return 21; //prettier-ignore
+	if (str === `e4`) return 29; //prettier-ignore
+	if (str === `e5`) return 37; //prettier-ignore
+	if (str === `e6`) return 45; //prettier-ignore
+	if (str === `e7`) return 53; //prettier-ignore
+	if (str === `e8`) return 61; //prettier-ignore
+	if (str === `f1`) return 6; //prettier-ignore
+	if (str === `f2`) return 14; //prettier-ignore
+	if (str === `f3`) return 22; //prettier-ignore
+	if (str === `f4`) return 30; //prettier-ignore
+	if (str === `f5`) return 38; //prettier-ignore
+	if (str === `f6`) return 46; //prettier-ignore
+	if (str === `f7`) return 54; //prettier-ignore
+	if (str === `f8`) return 62; //prettier-ignore
+	if (str === `g1`) return 7; //prettier-ignore
+	if (str === `g2`) return 15; //prettier-ignore
+	if (str === `g3`) return 23; //prettier-ignore
+	if (str === `g4`) return 31; //prettier-ignore
+	if (str === `g5`) return 39; //prettier-ignore
+	if (str === `g6`) return 47; //prettier-ignore
+	if (str === `g7`) return 55; //prettier-ignore
+	if (str === `g8`) return 63; //prettier-ignore
+	if (str === `h1`) return 8; //prettier-ignore
+	if (str === `h2`) return 16; //prettier-ignore
+	if (str === `h3`) return 24; //prettier-ignore
+	if (str === `h4`) return 32; //prettier-ignore
+	if (str === `h5`) return 40; //prettier-ignore
+	if (str === `h6`) return 48; //prettier-ignore
+	if (str === `h7`) return 56; //prettier-ignore
+	if (str === `h8`) return 64; //prettier-ignore
 };
