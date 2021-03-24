@@ -169,7 +169,6 @@ class JoeyChess extends React.Component {
 			newBoardState[newPiece[1][0]][newPiece[1][1]] = ''; // set the square that the piece came from to blank
 			newBoardState[this.state.newSquare[0]][this.state.newSquare[1]] = newPiece[0]; //prettier-ignore
 			newFEN = generateFEN(newBoardState, this.state.boardState); // generate a new FEN based on the board
-			console.log(newFEN);
 			parsedFEN = parseFEN({ ...this.state.board }, [...newFEN]); // parse the new FEN into the new position
 			//  --------------------------------------------------------------------------------------------------------------------------------------
 

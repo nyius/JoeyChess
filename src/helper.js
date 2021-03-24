@@ -1,6 +1,6 @@
 // eslint-disable-next-line
 import { Rook, Knight, King, Queen, Pawn, Bishop } from './Pieces';
-import { BOARD_HEIGHT, BOARD_WIDTH } from './config';
+import { BOARD_HEIGHT, BOARD_WIDTH, NORTH, NORTH_WEST, NORTH_EAST, EAST, WEST, SOUTH_WEST, SOUTH_EAST, SOUTH } from './config'; //prettier-ignore
 
 let previousPosition, pieceMoves, kingInCheck, boardState;
 
@@ -363,10 +363,11 @@ export const checkForEnemy = (curSquare, curRow, pieceMoveToSquare, pieceColor, 
 	let leftEdge       = [1, 9, 17, 25, 33, 41, 49, 57]; //prettier-ignore
 	let rightEdge      = [8, 16, 24, 32, 40, 48, 56, 64]; //prettier-ignore
 	let squareHasEnemy = squareHasPiece(pieceMoveToSquare, pieceColor); //prettier-ignore
+
     if(squareHasEnemy === `Friendly`) return `Friendly`;
     if(squareHasEnemy === `check`) return `check`;
-
-	if (directionalIndex === 2 || directionalIndex === 3 || directionalIndex === 5) {
+	
+	if (directionalIndex === NORTH_EAST || directionalIndex === EAST || directionalIndex === SOUTH_EAST) {
 		// If our current piece is on the right edge, we can't go right
 		if (curSquare === rightEdge[curRow - 1]) {
 			return;
@@ -375,7 +376,7 @@ export const checkForEnemy = (curSquare, curRow, pieceMoveToSquare, pieceColor, 
 		}
 	}
 	// if direction is left and it does past one of its left eges, stop -------------------------------------------------------------------
-    else if (directionalIndex === 1 || directionalIndex === 4 || directionalIndex === 6) {
+    else if (directionalIndex === NORTH_WEST || directionalIndex === WEST || directionalIndex === SOUTH_WEST) {
 		// If our current piece is on the left edge, we can't go left
 		if (curSquare === leftEdge[curRow - 1]) {
 			return;

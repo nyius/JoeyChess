@@ -28,7 +28,7 @@ class Piece extends React.Component {
 				let color      = e.target.className.slice(0, 1); //prettier-ignore
 				let getBoardState = this.props.getBoardState();
 
-				// checkEveryMove(color);
+				checkEveryMove(color, getBoardState);
 				this.props.checkForCheck(checkForCheck());
 				this.props.legalMoves(this.findMoves(row, sq, color, getBoardState));
 				e.target.parentNode.classList.add(`highlight`);
@@ -41,6 +41,7 @@ class Piece extends React.Component {
 				let getBoardState = this.props.getBoardState();
 
 				this.handleDrag(e);
+				checkEveryMove(color, getBoardState);
 				this.props.prevPosition([row, sq]);
 				this.props.checkForCheck(checkForCheck());
 				this.props.legalMoves(this.findMoves(row, sq, color, getBoardState));
