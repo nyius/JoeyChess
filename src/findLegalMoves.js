@@ -15,7 +15,7 @@ let checkBlockingPiecesAttacker   = []; //prettier-ignore
 let checkBlockingPiecesDefender   = []; //prettier-ignore
 let kingInCheck, turn, lastTurn; //prettier-ignore
 
-export const checkForCheck = (e) => {
+export const checkForCheck = (color) => {
 	checkingPieceSquares   = []; //prettier-ignore
 	kingInCheck            = false; //prettier-ignore
 	let checkState;
@@ -56,11 +56,12 @@ export const checkForCheck = (e) => {
 			return null;
 		});
 	}
-	// everyLegalMoveTemp.forEach((square) => {
-	// 	document.getElementById(square).classList.add(`legalMoves`);
-	// });
+
 	lastTurn       = turn; //prettier-ignore
 	everyLegalMove = everyLegalMoveTemp; //prettier-ignore
+	everyLegalMove.forEach((square) => {
+		document.getElementById(square).classList.add(`runAway`);
+	});
 	return checkState;
 };
 
@@ -173,13 +174,14 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 					) {
 						newLegalMoves.push(`sq` + newSquare);
 					}
+
 					//prettier-ignore
-					if (piece === `k` && !pieceLeft1?.includes(`piece`) && !pieceLeft2?.includes(`piece`) && !pieceLeft3?.includes(`piece`)) {
+					if (piece === `k` && !pieceLeft1?.includes(`piece`) && !pieceLeft2?.includes(`piece`) && !pieceLeft3?.includes(`piece`) && !everyLegalMove.includes(`sq` + newSquare)) {
 						if (piece === `k` && curSquare === 5  && getBoardState?.includes(`Q`)) newLegalMoves.push(`sq` + 3); //prettier-ignore
 						if (piece === `k` && curSquare === 61 && getBoardState?.includes(`q`)) newLegalMoves.push(`sq` + 59); //prettier-ignore
 					}
 					//prettier-ignore
-					if (piece === `k` && !pieceRight1?.includes(`piece`) && !pieceRight2?.includes(`piece`)) {
+					if (piece === `k` && !pieceRight1?.includes(`piece`) && !pieceRight2?.includes(`piece`) && !everyLegalMove.includes(`sq` + newSquare)) {
 						if (piece === `k` && curSquare === 5  && getBoardState?.includes(`K`)) newLegalMoves.push(`sq` + 7); //prettier-ignore
 						if (piece === `k` && curSquare === 61 && getBoardState?.includes(`k`)) newLegalMoves.push(`sq` + 63); //prettier-ignore
 					}
@@ -201,7 +203,8 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 						(dirIndex === SOUTH_EAST && piece === `n` && RIGHT_EDGE.includes(curSquare + 1)) || //prettier-ignore
 						(dirIndex === WEST       && piece === `n` && LEFT_EDGE.includes(curSquare - 1)) || //prettier-ignore
 						(dirIndex === NORTH_WEST && piece === `n` && LEFT_EDGE.includes(curSquare - 1)) || //prettier-ignore
-						(dirIndex === NORTH      && piece === `n` && LEFT_EDGE.includes(curSquare)) //prettier-ignore
+						(dirIndex === NORTH      && piece === `n` && LEFT_EDGE.includes(curSquare)) ||//prettier-ignore
+						(piece === `k` && everyLegalMove.includes(`sq` + newSquare)) //prettier-ignore
 					) {
 						return true;
 					}
@@ -369,14 +372,20 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 						return `check`;
 					}
 					if (
-						(dirIndex === NORTH_WEST && LEFT_EDGE.includes(newSquare)  && piece !== `p`) ||
-						(dirIndex === SOUTH_WEST && LEFT_EDGE.includes(newSquare)  && piece !== `p`) ||
-						(dirIndex === WEST       && LEFT_EDGE.includes(newSquare)  && piece !== `p`) ||
-						(dirIndex === EAST       && RIGHT_EDGE.includes(newSquare) && piece !== `p`) ||
-						(dirIndex === NORTH_EAST && RIGHT_EDGE.includes(newSquare) && piece !== `p`) ||
-						(dirIndex === SOUTH_EAST && RIGHT_EDGE.includes(newSquare) && piece !== `p`) ||
-						(dirIndex === NORTH      && piece === `p` && color === `w` && curRow === 2) || //prettier-ignore
-						(dirIndex === SOUTH      && piece === `p` && color === `b` && curRow === 7) //prettier-ignore
+						(dirIndex === NORTH_WEST && LEFT_EDGE.includes(newSquare)   && piece !== `p`) || //prettier-ignore
+						(dirIndex === SOUTH_WEST && LEFT_EDGE.includes(newSquare)   && piece !== `p`) || //prettier-ignore
+						(dirIndex === WEST       && LEFT_EDGE.includes(newSquare)   && piece !== `p`) || //prettier-ignore
+						(dirIndex === EAST       && RIGHT_EDGE.includes(newSquare)  && piece !== `p`) || //prettier-ignore
+						(dirIndex === NORTH_EAST && RIGHT_EDGE.includes(newSquare)  && piece !== `p`) || //prettier-ignore
+						(dirIndex === SOUTH_EAST && RIGHT_EDGE.includes(newSquare)  && piece !== `p`) || //prettier-ignore
+						(dirIndex === NORTH_EAST && TOP_EDGE.includes(newSquare)    && piece !== `p`) || //prettier-ignore
+						(dirIndex === NORTH_WEST && TOP_EDGE.includes(newSquare)    && piece !== `p`) || //prettier-ignore
+						(dirIndex === SOUTH_EAST && BOTTOM_EDGE.includes(newSquare) && piece !== `p`) || //prettier-ignore
+						(dirIndex === SOUTH_WEST && BOTTOM_EDGE.includes(newSquare) && piece !== `p`) || //prettier-ignore
+						(dirIndex === NORTH      && TOP_EDGE.includes(newSquare)    && piece !== `p`) || //prettier-ignore
+						(dirIndex === SOUTH      && BOTTOM_EDGE.includes(newSquare) && piece !== `p`) || //prettier-ignore
+						(dirIndex === NORTH      && piece === `p` && color === `w`  && curRow === 2) || //prettier-ignore
+						(dirIndex === SOUTH      && piece === `p` && color === `b`  && curRow === 7) //prettier-ignore
 					) {
 						newLegalMoves.push(`sq` + newSquare);
 						//prettier-ignore
@@ -390,7 +399,7 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 						return true;
 					}
 					if (
-						dirIndex === NORTH_WEST  && piece === `p` && squareHasEnemy || //prettier-ignore
+						(dirIndex === NORTH_WEST && piece === `p` && squareHasEnemy) || //prettier-ignore
 						(dirIndex === NORTH_EAST && piece === `p` && squareHasEnemy) || //prettier-ignore
 						(dirIndex === SOUTH_WEST && piece === `p` && squareHasEnemy) || //prettier-ignore
 						(dirIndex === SOUTH_EAST && piece === `p` && squareHasEnemy) //prettier-ignore
@@ -434,10 +443,10 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 						(dirIndex === NORTH      && piece === `n` && LEFT_EDGE.includes(curSquare)) ||//prettier-ignore
 						(dirIndex === SOUTH_EAST && BOTTOM_EDGE.includes(newSquare)) ||//prettier-ignore
 						(dirIndex === SOUTH_WEST && BOTTOM_EDGE.includes(newSquare)) ||//prettier-ignore
-						(dirIndex === NORTH      && BOTTOM_EDGE.includes(newSquare)) ||//prettier-ignore
+						(dirIndex === NORTH      && TOP_EDGE.includes(newSquare)) ||//prettier-ignore
 						(dirIndex === NORTH_EAST && TOP_EDGE.includes(newSquare)) ||//prettier-ignore
 						(dirIndex === NORTH_WEST && TOP_EDGE.includes(newSquare)) ||//prettier-ignore
-						(dirIndex === SOUTH      && TOP_EDGE.includes(newSquare)) //prettier-ignore
+						(dirIndex === SOUTH      && BOTTOM_EDGE.includes(newSquare)) //prettier-ignore
 					) {
 						return true;
 					}
@@ -608,9 +617,9 @@ export const checkEveryMove = (col, getBoardState) => {
 				});
 			}
 		});
-		everyMove.forEach((square) => {
-			document.getElementById(square).classList.add(`runAway`);
-		});
+		// everyMove.forEach((square) => {
+		// 	document.getElementById(square).classList.add(`runAway`);
+		// });
 	}
 	return everyMove;
 };

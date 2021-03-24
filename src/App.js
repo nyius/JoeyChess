@@ -119,11 +119,6 @@ class JoeyChess extends React.Component {
 	};
 
 	handleDrop = (e) => {
-		// TODO: EN-PASSANT
-		// TODO: CASTLE
-		// TODO: PROMOTING
-		// TODO: CHECKMATE
-
 		e.preventDefault();
 		if (!e.dataTransfer.getData('piece')) return;
 		const droppedPiece = e.dataTransfer.getData('piece');
@@ -131,14 +126,11 @@ class JoeyChess extends React.Component {
 		const turn = Object.values({ ...this.state.boardState });
 		const whoseTurn = turn[0];
 		const legalMoves = newPiece[2];
-		const kingInCheck = newPiece[3];
 
 		// Check if its the right players move. If not, do absolutely nothing
 		if (newPiece[0].props.piece[0] === whoseTurn) {
 			let newBoardState = { ...this.state.board };
 			let newFEN, parsedFEN;
-
-			// if (kingInCheck) return;
 
 			// If Our move isn't legal, do nothing
 			if (!legalMoves.includes(e.target.id) && !legalMoves.includes(e.target.parentNode.id)) return; //prettier-ignore
@@ -162,6 +154,18 @@ class JoeyChess extends React.Component {
 				let newRook = pieceCheck(`white piece wr`);
 				newBoardState[`row1`][`sq1`] = ``
 				newBoardState[`row1`][`sq4`] = newRook[0]
+			}
+			//prettier-ignore
+			if (droppedPiece.includes(`bk`) && newPiece[1][1] === `sq61` && this.state.newSquare[1] === `sq63`) {
+				let newRook = pieceCheck(`black piece br`);
+				newBoardState[`row8`][`sq64`] = ``
+				newBoardState[`row8`][`sq62`] = newRook[0]
+			}
+			//prettier-ignore
+			if (droppedPiece.includes(`bk`) && newPiece[1][1] === `sq61` && this.state.newSquare[1] === `sq59`) {
+				let newRook = pieceCheck(`black piece br`);
+				newBoardState[`row8`][`sq57`] = ``
+				newBoardState[`row8`][`sq60`] = newRook[0]
 			}
 			//  ----------------------------------------------------------------------------------------------------------------------------------------
 

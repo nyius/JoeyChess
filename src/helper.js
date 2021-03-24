@@ -1,6 +1,6 @@
 // eslint-disable-next-line
 import { Rook, Knight, King, Queen, Pawn, Bishop } from './Pieces';
-import { BOARD_HEIGHT, BOARD_WIDTH, NORTH, NORTH_WEST, NORTH_EAST, EAST, WEST, SOUTH_WEST, SOUTH_EAST, SOUTH } from './config'; //prettier-ignore
+import { BOARD_HEIGHT, BOARD_WIDTH, NORTH_WEST, NORTH_EAST, EAST, WEST, SOUTH_WEST, SOUTH_EAST } from './config'; //prettier-ignore
 
 let previousPosition, pieceMoves, kingInCheck, boardState;
 
@@ -295,7 +295,7 @@ export const generateFEN = (newBoardPosition, currentState) => {
 };
 
 /**
- * used to check what piece is moved based on its css class tag
+ * used to check what piece is moved based on its css class tag. Returns if the king is in check
  * @param {string} piece Takes a string of a pieces class (eg. 'white piece wp' <- wp="white pawn")
  * @returns
  */
