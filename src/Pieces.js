@@ -26,10 +26,11 @@ class Piece extends React.Component {
 				let row        = e.target.parentNode.dataset.row; //prettier-ignore
 				let sq         = e.target.parentNode.id; //prettier-ignore
 				let color      = e.target.className.slice(0, 1); //prettier-ignore
+
 				let getBoardState = this.props.getBoardState();
 
 				checkEveryMove(color, getBoardState);
-				this.props.checkForCheck(checkForCheck());
+				checkForCheck();
 				this.props.legalMoves(this.findMoves(row, sq, color, getBoardState));
 				e.target.parentNode.classList.add(`highlight`);
 			}}
@@ -43,7 +44,7 @@ class Piece extends React.Component {
 				this.handleDrag(e);
 				checkEveryMove(color, getBoardState);
 				this.props.prevPosition([row, sq]);
-				this.props.checkForCheck(checkForCheck());
+				checkForCheck();
 				this.props.legalMoves(this.findMoves(row, sq, color, getBoardState));
 				e.target.parentNode.classList.add(`highlight`);
 			}}

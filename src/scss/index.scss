@@ -74,6 +74,23 @@ body {
 	margin: 50px;
 }
 
+.board_moves_container {
+	display: flex;
+
+	margin: 50px;
+}
+
+.moves_container {
+	position: relative;
+	align-items: center;
+	justify-self: center;
+	margin: 50px 0 0 0;
+	width: 90%;
+	max-width: 300px;
+	height: calc(#{$squareSize} * 8);
+	background: rgb(26, 26, 26);
+}
+
 // White pieces
 .piece {
 	width: $squareSize;

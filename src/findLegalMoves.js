@@ -3,23 +3,27 @@ import {LEFT_EDGE, RIGHT_EDGE, TOP_EDGE, BOTTOM_EDGE, KNIGHT_MOVES, BISHOP_MOVES
 // [N, NW, NE, E, W, SW, SE, S]
 
 let checkingPieceSquares          = []; //prettier-ignore
+let checkingPieceSquares2         = []; //prettier-ignore
 let everyMove                     = []; //prettier-ignore
 let checkingLine                  = []; //prettier-ignore
 let checkingLineTemp              = []; //prettier-ignore
 let allCheckingLine               = []; //prettier-ignore
 let allCheckingLineTemp           = []; //prettier-ignore
+let protectedPieces               = []; //prettier-ignore
 let everyLegalMove                = []; //prettier-ignore
 let checkBlockingPieces           = []; //prettier-ignore
 let checkBlockingPiecesAttacker   = []; //prettier-ignore
 let checkBlockingPiecesDefender   = []; //prettier-ignore
-let kingInCheck, turn, lastTurn; //prettier-ignore
+let everyMoveBlack                = []; //prettier-ignore
+let everyMoveWhite                = []; //prettier-ignore
+let kingInCheck, kingInCheck2, turn, turn2, lastTurn, lastTurn2; //prettier-ignore
 
-export const checkForCheck = (color) => {
-	checkingPieceSquares   = []; //prettier-ignore
-	kingInCheck            = false; //prettier-ignore
+export const checkForCheck = (col) => {
 	let checkState;
 	let pieces             = []; //prettier-ignore
 	let everyLegalMoveTemp = []; //prettier-ignore
+	checkingPieceSquares   = []; //prettier-ignore
+	kingInCheck            = false; //prettier-ignore
 	turn                   = document.getElementById(`turn`).innerHTML.includes(`w`) ? `white` : `black`; //prettier-ignore
 	turn === `black` ? (pieces = [`wp`, `wr`, `wn`, `wb`, `wq`, `wk`]) : (pieces = [`bb`, `br`, `bn`, `bk`, `bq`, `bp`]); //prettier-ignore
 	if (turn !== lastTurn) checkingLine = []; // If we're on a new turn, reset the checking line.
@@ -38,7 +42,6 @@ export const checkForCheck = (color) => {
 				let legalMoves = findMoves(row, `sq` + square, color, pc); //prettier-ignore
 
 				if (legalMoves.length === 0) return `Done`; // Exit if theres no legal moves for that piece
-
 				// For every legal move that piece has
 				legalMoves.forEach((move) => {
 					everyLegalMoveTemp.push(...legalMoves);
@@ -105,6 +108,9 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 			const moveCheck = (newSquare) => {
 				let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
 				let pieceInFront, piece2InFront, pieceLeft1, pieceLeft2, pieceLeft3, pieceRight1, pieceRight2; //prettier-ignore
+
+				// if (everyMoveBlack.length === 0 || everyMoveWhite.length === 0)
+				// 	console.log(`CHIKMEET`);
 
 				if (piece === `p`) {
 					pieceInFront  = document.getElementById(`sq` + pieceMoveToSquare); //prettier-ignore
@@ -221,8 +227,12 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 				}
 
 				if (color === kingInCheck) {
-					if (piece === `k`) console.log(piece, color, curSquare);
 					if (squareHasEnemy === `Friendly`) return true;
+
+					if (piece === `k` && protectedPieces.includes(`sq` + newSquare)) {
+						return;
+					}
+
 					if (piece === `k` && !everyLegalMove.includes(`sq` + newSquare)) {
 						newLegalMoves.push(`sq` + newSquare);
 						return true;
@@ -267,6 +277,7 @@ export const findMoves = (row, sq, col, pc, getBoardState) => {
 					}
 					if (piece !== `k` && checkingLine.includes(newSquare)) {
 						newLegalMoves.push(`sq` + newSquare);
+						return;
 					}
 				}
 			};
@@ -334,7 +345,6 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 	if (piece === `r`) startingLegalMoves = ROOK_MOVES;
 	if (piece === `q`) startingLegalMoves = QUEEN_MOVES;
 	if (piece === `k`) startingLegalMoves = KING_MOVES;
-
 	// Generate an array of legal squares we can go to
 	startingLegalMoves.forEach((move, dirIndex) => {
 		if (move) {
@@ -344,6 +354,7 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 			const moveCheck = (newSquare) => {
 				let squareHasEnemy = checkForEnemy(curSquare,curRow,newSquare,color,dirIndex); //prettier-ignore
 				let pieceInFront, piece2InFront, pieceLeft1, pieceLeft2, pieceLeft3, pieceRight1, pieceRight2; //prettier-ignore
+
 				if (piece === `p`) {
 					pieceInFront  = document.getElementById(`sq` + pieceMoveToSquare); //prettier-ignore
 					piece2InFront = document.getElementById(`sq` + Number(pieceMoveToSquare + move)) //prettier-ignore
@@ -370,12 +381,38 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 					pieceLeft2 = document.getElementById(`sq` + 59).innerHTML; //prettier-ignore
 					pieceLeft3 = document.getElementById(`sq` + 58).innerHTML; //prettier-ignore
 				}
+
 				if (color !== kingInCheck) {
 					if (squareHasEnemy === `check`) {
-						// console.log(piece, curSquare, newSquare);
 						newLegalMoves.push(`sq` + newSquare);
 						return `check`;
 					}
+
+					if (
+						(dirIndex === NORTH_WEST && BOTTOM_EDGE.includes(curSquare) && piece === `n`) || //prettier-ignore
+						(dirIndex === SOUTH_EAST && BOTTOM_EDGE.includes(curSquare) && piece === `n`) ||//prettier-ignore
+						(dirIndex === NORTH_WEST && TOP_EDGE.includes(curSquare) && piece === `n`) || //prettier-ignore
+						(dirIndex === SOUTH_EAST && TOP_EDGE.includes(curSquare) && piece === `n`) //prettier-ignore
+					) {
+						return;
+					}
+
+					// Handle protecting pieces ----------------------------------------------------------------------------------------------------------------------------------------------------
+					if (
+						(squareHasEnemy === `Friendly` && piece === `b`) ||//prettier-ignore
+						(squareHasEnemy === `Friendly` && piece === `q`) ||//prettier-ignore
+						(squareHasEnemy === `Friendly` && piece === `r`) ||//prettier-ignore
+						(squareHasEnemy === `Friendly` && piece === `n`) ||//prettier-ignore
+						(squareHasEnemy === `Friendly` && piece === `p` && dirIndex === NORTH_WEST) ||//prettier-ignore
+						(squareHasEnemy === `Friendly` && piece === `p` && dirIndex === NORTH_EAST) ||//prettier-ignore
+						(squareHasEnemy === `Friendly` && piece === `p` && dirIndex === SOUTH_EAST) ||//prettier-ignore
+						(squareHasEnemy === `Friendly` && piece === `p` && dirIndex === SOUTH_WEST) //prettier-ignore
+					) {
+						if(!protectedPieces.includes(`sq` + newSquare)) protectedPieces.push(`sq` + newSquare); //prettier-ignore
+						// console.log(protectedPieces);
+						return `Protected`;
+					}
+
 					if (
 						(dirIndex === NORTH_WEST && LEFT_EDGE.includes(newSquare)   && piece !== `p`) || //prettier-ignore
 						(dirIndex === SOUTH_WEST && LEFT_EDGE.includes(newSquare)   && piece !== `p`) || //prettier-ignore
@@ -458,6 +495,12 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 					newLegalMoves.push(`sq` + newSquare);
 				}
 				if (color === kingInCheck) {
+					if (
+						(piece === `k` && squareHasEnemy === `Friendly`) || //prettier-ignore
+						(piece === `k` && protectedPieces.includes(`sq` + newSquare)) //prettier-ignore
+					) {
+						return;
+					}
 					if (piece === `k` && !everyLegalMove.includes(`sq` + newSquare)) {
 						newLegalMoves.push(`sq` + newSquare);
 						return true;
@@ -522,23 +565,33 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 						allCheckingLineTemp = [];
 						return;
 					}
+					if(lineCheck === `Protected`){
+						// 
+					}
 					if (lineCheck) {
-
 						allCheckingLineTemp = [];
 						return;
 					}
 				}
 			}
 
-			// King Pawn Knight ----------------------------------------------------------------------------
-			if (piece === `k` || piece === `p` || piece === `n`) {
+			// Pawn Knight ----------------------------------------------------------------------------------------------------------------------------------------------------
+			if (piece === `p` || piece === `n`) {
+				let lineCheck = moveCheck(pieceMoveToSquare);
+				if (lineCheck === `Protected`) {
+					//
+				}
+			}
+
+			// King  ----------------------------------------------------------------------------
+			if (piece === `k`) {
 				moveCheck(pieceMoveToSquare);
 			}
 		}
 	});
 	if (allCheckingLine.length > 0) {
 		// 1. Loop over the array of lines giving check
-		allCheckingLine.forEach((line, j) => {
+		allCheckingLine.forEach((line) => {
 			// console.log(line);
 			let pieces = 0;
 			let tempLine = [];
@@ -576,20 +629,24 @@ export const findEveryMove = (row, sq, col, pc, getBoardState) => {
 		stringArr.push(JSON.parse(e));
 	});
 	checkBlockingPieces = stringArr;
+
 	return newLegalMoves;
 };
 
 // Checks All of enemies moves
 export const checkEveryMove = (col, getBoardState) => {
+	let boardState = getBoardState.split(` `);
+	if (boardState[0] !== lastTurn?.slice(0, 1)) {
+		protectedPieces = []; //prettier-ignore
+	}
+	let pieces = []; //prettier-ignore
+	col === `b` ? (pieces = [`wp`, `wr`, `wn`, `wb`, `wq`, `wk`]) : (pieces = [`bb`, `br`, `bn`, `bk`, `bq`, `bp`]); //prettier-ignore
+	// if its blacks turn, we want to see where whites moves are
 	everyMove                   = []; //prettier-ignore
 	allCheckingLine             = []; //prettier-ignore
 	checkBlockingPieces         = []; //prettier-ignore
 	checkBlockingPiecesAttacker = []; //prettier-ignore
 	checkBlockingPiecesDefender = []; //prettier-ignore
-
-	let pieces = []; //prettier-ignore
-	col === `b` ? (pieces = [`wp`, `wr`, `wn`, `wb`, `wq`, `wk`]) : (pieces = [`bb`, `br`, `bn`, `bk`, `bq`, `bp`]); //prettier-ignore
-	// if its blacks turn, we want to see where whites moves are
 
 	// For every square on the board
 	for (let square = 1; square <= 64; square++) {
@@ -601,17 +658,9 @@ export const checkEveryMove = (col, getBoardState) => {
 				let color = piece.slice(0, 1);
 				let pc = piece.slice(1, 2);
 
-				let moves = findEveryMove(
-					squareEl.dataset.row,
-					squareId,
-					color,
-					pc,
-					getBoardState
-				);
-
+				let moves = findEveryMove(squareEl.dataset.row, squareId,color,pc,getBoardState); //prettier-ignore
 				// Everything below here is just to add a pretty highlight to the square --------------------------------------------------------------------
 				if (moves.length === 0) return `Done`;
-
 				moves.forEach((move) => {
 					if (everyMove.includes(move)) {
 						return;

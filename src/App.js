@@ -12,10 +12,10 @@ class JoeyChess extends React.Component {
 			// boardPositionFEN: `r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 w KQkq - 0 1`,
 			// boardPositionFEN: `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`,
 			// boardPositionFEN: `rnbqkbnr/pp3ppp/2p5/3pp2Q/3P4/4P3/PPP2PPP/RNB1KBNR w KQkq - 0 4`,
-			boardPositionFEN: `rnbqkbnr/1p3ppp/p1p5/3ppP1Q/3P4/4P3/PPP3PP/RNB1KBNR b KQkq - 0 5`,
+			// boardPositionFEN: `rnbqkbnr/1p3ppp/p1p5/3ppP1Q/3P4/4P3/PPP3PP/RNB1KBNR b KQkq - 0 5`,
 			boardPositionFEN: `rnbqkbnr/1p3ppp/p2P4/4pP1Q/2B1p3/8/PPP3PP/RNB1K1NR b KQk - 0 9`,
 			// boardPositionFEN: `rnbqkbnr/1p3ppp/p1p5/3ppP1Q/3P4/4P3/PPP3PP/RNB1KBNR b KQkq - 0 9`,
-			boardPositionHistory: null,
+			boardPositionHistory: [],
 			boardState: null,
 			newSquare: [],
 			curSquare: null,
@@ -131,12 +131,16 @@ class JoeyChess extends React.Component {
 		const turn = Object.values({ ...this.state.boardState });
 		const whoseTurn = turn[0];
 		const legalMoves = newPiece[2];
+		const pieceMoved = newPiece[1][1];
+		const notationMove = boardNumToChessNotation(Number(pieceMoved.slice(2)));
+
 		let enPassant;
 
 		// Check if its the right players move. If not, do absolutely nothing
 		if (newPiece[0].props.piece[0] === whoseTurn) {
 			let newBoardState = { ...this.state.board };
 			let newFEN, parsedFEN;
+			let newBoardPositionHistory = [...this.state.boardPositionHistory];
 
 			// If Our move isn't legal, do nothing
 			if (!legalMoves.includes(e.target.id) && !legalMoves.includes(e.target.parentNode.id)) return; //prettier-ignore
@@ -195,8 +199,8 @@ class JoeyChess extends React.Component {
 			// Remove the piece from the old square, move it to the new square, and generate a new FEN + parse it and save it to the state
 			newBoardState[newPiece[1][0]][newPiece[1][1]] = ''; // set the square that the piece came from to blank
 			newBoardState[this.state.newSquare[0]][this.state.newSquare[1]] = newPiece[0]; //prettier-ignore
+			newBoardPositionHistory.push(notationMove);
 			newFEN = generateFEN(newBoardState, this.state.boardState, enPassant); // generate a new FEN based on the board
-			console.log(newFEN);
 			parsedFEN = parseFEN({ ...this.state.board }, [...newFEN]); // parse the new FEN into the new position
 			//  --------------------------------------------------------------------------------------------------------------------------------------
 
@@ -204,6 +208,7 @@ class JoeyChess extends React.Component {
 				boardPositionFEN: newFEN,
 				board: parsedFEN[0],
 				boardState: parsedFEN[1],
+				boardPositionHistory: newBoardPositionHistory,
 			});
 		} else {
 			removeSquareColors();
@@ -286,11 +291,14 @@ class JoeyChess extends React.Component {
 			turnNum = turn[4];
 		}
 		return (
-			<div className="board_container">
-				<this.chessBoard />
-				<div id="turn">
-					<h1>{whoseTurn + ` ` + turnNum}</h1>
+			<div className="board_moves_container">
+				<div className="board_container">
+					<this.chessBoard />
+					<div id="turn">
+						<h1>{whoseTurn + ` ` + turnNum}</h1>
+					</div>
 				</div>
+				<div className="moves_container">{this.state.boardPositionHistory}</div>
 			</div>
 		);
 	}
